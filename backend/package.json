@@ -1,0 +1,28 @@
+{
+  "name": "pta-reservas",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/GuiHenry17/PTA-RESERVAS#readme",
+  "bugs": {
+    "url": "https://github.com/GuiHenry17/PTA-RESERVAS/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GuiHenry17/PTA-RESERVAS.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --watch index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.14.0",
+    "bcryptjs": "^3.0.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.14.0"
+  }
+}
