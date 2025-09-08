@@ -4,8 +4,11 @@ const port = 3000;
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
+const loggedRoutes = require('./routes/LoggedRoutes')
+app.use("/", loggedRoutes)
+
 const usuariosRoutes = require("./routes/usuarioRoutes")
-app.use("/auth", usuariosRoutes)
+app.use("/", usuariosRoutes)
 
 app.listen(port, (err) => {
     console.log(`Aplicação rodando em http://localhost:${port}`)
