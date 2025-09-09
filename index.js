@@ -10,6 +10,9 @@ app.use("/", loggedRoutes)
 const usuariosRoutes = require("./routes/usuarioRoutes")
 app.use("/", usuariosRoutes)
 
+const AdminRoutes = require('./routes/AdminRoutes')
+app.use("/", AdminRoutes)
+
 app.listen(port, (err) => {
     console.log(`Aplicação rodando em http://localhost:${port}`)
 });

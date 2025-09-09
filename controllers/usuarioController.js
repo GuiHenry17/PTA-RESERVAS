@@ -87,6 +87,28 @@ class usuarioController {
     }
     }
 
+    static async verificaAdmin(req, res, next){
+        if (req.usuarioId == null ) {
+            return res.json({
+            msg: "Você não esstá autenticado"
+        });
+        }
+
+        const usuario = await client.usuario.findUnique({
+        where: {
+            id: req.usuarioId,
+        },
+    })
+    if (!usuario.isAdmin) {
+        return res.json({
+        msg: 
+        "Acesso negado, você não é admin",
+    });
+    }
+
+    next()
+        
+    }
 
 }
 
