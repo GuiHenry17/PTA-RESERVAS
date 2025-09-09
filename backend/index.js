@@ -8,7 +8,7 @@ const loggedRoutes = require('./routes/LoggedRoutes')
 app.use("/", loggedRoutes)
 
 const usuariosRoutes = require("./routes/usuarioRoutes")
-app.use("/", usuariosRoutes)
+app.use("/auth", usuariosRoutes)
 
 const AdminRoutes = require('./routes/AdminRoutes')
 app.use("/", AdminRoutes)
