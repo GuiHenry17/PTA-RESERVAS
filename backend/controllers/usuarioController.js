@@ -7,7 +7,7 @@ const client = new PrismaClient();
 class usuarioController {
 
     static async cadastrar(req, res) {
-        const { nome, email, senha } = req.body;
+        const { nome, email, senha, tipo } = req.body;
 
         const salt = bcrypt.genSaltSync(8)
         const hashSenha = bcrypt.hashSync(senha, salt)
@@ -17,8 +17,16 @@ class usuarioController {
                 nome,
                 email,
                 senha: hashSenha,
+                tipo
             },
         });
+
+        if(tipo != "cliente" && tipo != "admin"){
+            res.json({
+                mensagem: "Tipo de usuário inválido! Somente 'cliente' ou 'admin'.",
+                erro: true
+            })
+        }
 
         if(res.status(200)) {
             res.json({
@@ -99,7 +107,7 @@ class usuarioController {
             id: req.usuarioId,
         },
     })
-    if (!usuario.isAdmin) {
+    if (usuario.tipo === "cliente") {
         return res.json({
         msg: 
         "Acesso negado, você não é admin",
