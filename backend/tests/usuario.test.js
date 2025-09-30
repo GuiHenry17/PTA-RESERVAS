@@ -27,7 +27,7 @@ test("POST /auth/cadastro deve retornar Tipo de usuário inválido", async () =>
     });
 
   expect(res.body.erro).toBe(true);
-  expect(res.body.mensagem).toMatch(/Tipo de usuário inválido/);
+  expect(res.body.mensagem).toBe("Tipo de usuário inválido");
 });
 
 test("POST /auth/login deve retornar Autenticado com sucesso!", async () => {
