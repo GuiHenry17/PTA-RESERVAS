@@ -1,18 +1,6 @@
-const express = require("express");
-const app = express();
+const app = require("./app");
 const port = 3000;
-app.use(express.urlencoded({extended: true}));
-app.use(express.json());
 
-const loggedRoutes = require('./routes/LoggedRoutes')
-app.use("/", loggedRoutes)
-
-const usuariosRoutes = require("./routes/usuarioRoutes")
-app.use("/auth", usuariosRoutes)
-
-const AdminRoutes = require('./routes/AdminRoutes')
-app.use("/", AdminRoutes)
-
-app.listen(port, (err) => {
-    console.log(`Aplicação rodando em http://localhost:${port}`)
+app.listen(port, () => {
+  console.log(`Aplicação rodando em http://localhost:${port}`);
 });
