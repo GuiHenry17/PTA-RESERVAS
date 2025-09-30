@@ -9,36 +9,43 @@ class usuarioController {
     static async cadastrar(req, res) {
         const { nome, email, senha, tipo } = req.body;
 
-        const salt = bcrypt.genSaltSync(8)
-        const hashSenha = bcrypt.hashSync(senha, salt)
-
-        await client.usuario.create({
-            data: {
-                nome,
-                email,
-                senha: hashSenha,
-                tipo
-            },
-        });
+        if (!nome || !email || !senha || !tipo) {
+            return res.json({
+                mensagem: "Todos os campos são obrigatórios!",
+                erro: true
+            })
+        }
 
         if(tipo != "cliente" && tipo != "admin"){
-            res.json({
+            return res.json({
                 mensagem: "Tipo de usuário inválido! Somente 'cliente' ou 'admin'.",
                 erro: true
             })
         }
 
-        if(res.status(200)) {
-            res.json({
-            mensagem: "Usuário cadastrado com sucesso!",
-            erro: false
-        })}
-        else{
-            res.json({
+        const salt = bcrypt.genSaltSync(8)
+        const hashSenha = bcrypt.hashSync(senha, salt)
+
+        try {
+            await client.usuario.create({
+                data: {
+                    nome,
+                    email,
+                    senha: hashSenha,
+                    tipo
+                },
+            });
+        } catch {
+            return res.json({
                 mensagem: "Falha ao criar usuário!",
                 erro: true
             })
         }
+
+        res.json({
+            mensagem: "Usuário cadastrado com sucesso!",
+            erro: false
+        })
     }
 
      static async login(req, res) {
