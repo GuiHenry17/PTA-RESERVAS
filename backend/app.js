@@ -13,4 +13,7 @@ app.use("/auth", usuariosRoutes);
 const AdminRoutes = require("./routes/AdminRoutes");
 app.use("/", AdminRoutes);
 
+const mesaRoutes = require("./routes/mesaRoutes");
+app.use("/mesas", mesaRoutes)
+
 module.exports = app;
