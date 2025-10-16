@@ -1,0 +1,19 @@
+.header{
+    width: 100%;
+    height: 60px;
+    background-color: blue;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.header p{
+    text-decoration: none;
+    color: #fff;
+    padding-right: 1.5rem;
+}
+
+.header a.hover {
+    color: var(--red);
+}
