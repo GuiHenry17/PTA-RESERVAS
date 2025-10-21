@@ -1,18 +1,20 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Perfil from "./pages/Perfil";
-import CadastroClientes from "./pages/CadastroClientes";
+import Home from "./Pages/Home";
+import Perfil from "../pages/Perfil";
+import Login from "../pages/Login";
+import CadastroClientes from "../pages/CadastroClientes";
 
-export default function App() {
+export default function Routing() {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Home />}></Route>
-                <Route path="/login" element={<Login />}></Route>
                 <Route path="/perfil" element={<Perfil />}></Route>
+                <Route path="/login" element={<Login />}></Route>
                 <Route path="/cadastro/cliente" element={<CadastroClientes />}></Route>
+
             </Routes>
         </BrowserRouter>
     )
 }
+
