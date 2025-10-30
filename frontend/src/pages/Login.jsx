@@ -21,7 +21,7 @@ export default function Login() {
 
       if (data.token) {
         localStorage.setItem("token", data.token)
-        window.location.href = "/perfil"
+        window.location.href = "/"
       } else {
         setError(data.msg || "Erro ao fazer login")
       }

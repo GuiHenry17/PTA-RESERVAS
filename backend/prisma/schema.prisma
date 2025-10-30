@@ -25,4 +25,5 @@ model Mesa {
   id     Int    @id @default(autoincrement())
   codigo String @unique
   n_lugares Int
+  status String  @default("disponível")
 }

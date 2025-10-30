@@ -36,7 +36,7 @@ class usuarioController {
                 erro: false,
                 token: token
             })
-        } 
+        }
         catch {
             return res.json({
                 mensagem: "Falha ao criar usuário!",
@@ -120,6 +120,31 @@ class usuarioController {
 
         next()
 
+    }
+
+    static async getUsuarioLogado(req, res) {
+        const authHeader = req.headers["authorization"];
+        if (!authHeader) {
+            return res.status(401).json({ erro: true, mensagem: "Token não fornecido" });
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        try {
+            const decoded = jwt.verify(token, process.env.SENHA_SERVIDOR);
+            const usuario = await client.usuario.findUnique({
+                where: { id: decoded.id },
+                select: { id: true, nome: true, email: true, tipo: true },
+            });
+
+            if (!usuario) {
+                return res.status(404).json({ erro: true, mensagem: "Usuário não encontrado" });
+            }
+
+            res.json({ erro: false, usuario });
+        } catch (err) {
+            return res.status(401).json({ erro: true, mensagem: "Token inválido ou expirado" });
+        }
     }
 
 }

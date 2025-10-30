@@ -1,18 +1,59 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Perfil from "./pages/Perfil";
 import CadastroClientes from "./pages/CadastroClientes";
+import Perfil from "./pages/Perfil";
+import CadastroMesas from "./pages/CadastroMesas";
+import ListarMesas from "./pages/ListarMesas";
+import PrivateRoute from "./utils/PrivateRoute";
 
 export default function App() {
     return (
-        <BrowserRouter>
+        <Router>
             <Routes>
-                <Route path="/" element={<Home />}></Route>
-                <Route path="/login" element={<Login />}></Route>
-                <Route path="/perfil" element={<Perfil />}></Route>
-                <Route path="/cadastro/cliente" element={<CadastroClientes />}></Route>
+                <Route path="/login" element={<Login />} />
+
+                <Route
+                    path="/"
+                    element={
+                        <PrivateRoute>
+                            <Home />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/cadastro/cliente"
+                    element={
+                        <PrivateRoute>
+                            <CadastroClientes />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/perfil"
+                    element={
+                        <PrivateRoute>
+                            <Perfil />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/cadastro/mesa"
+                    element={
+                        <PrivateRoute>
+                            <CadastroMesas />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/mesas"
+                    element={
+                        <PrivateRoute>
+                            <ListarMesas />
+                        </PrivateRoute>
+                    }
+                />
             </Routes>
-        </BrowserRouter>
-    )
+        </Router>
+    );
 }
