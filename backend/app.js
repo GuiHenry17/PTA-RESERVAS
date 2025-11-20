@@ -18,4 +18,7 @@ app.use("/", AdminRoutes);
 const mesaRoutes = require("./routes/mesaRoutes");
 app.use("/mesas", mesaRoutes)
 
+const reservaRoutes = require("./routes/reservaRoutes");
+app.use("/reservas", reservaRoutes)
+
 module.exports = app;

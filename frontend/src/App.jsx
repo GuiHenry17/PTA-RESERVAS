@@ -6,6 +6,7 @@ import Perfil from "./pages/Perfil";
 import CadastroMesas from "./pages/CadastroMesas";
 import ListarMesas from "./pages/ListarMesas";
 import PrivateRoute from "./utils/PrivateRoute";
+import ReservarMesa from "./pages/ReservarMesa";
 
 export default function App() {
     return (
@@ -50,6 +51,14 @@ export default function App() {
                     element={
                         <PrivateRoute>
                             <ListarMesas />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/reservar"
+                    element={
+                        <PrivateRoute>
+                            <ReservarMesa />
                         </PrivateRoute>
                     }
                 />

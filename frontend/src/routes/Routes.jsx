@@ -3,6 +3,8 @@ import Home from "./Pages/Home";
 import Perfil from "../pages/Perfil";
 import Login from "../pages/Login";
 import CadastroClientes from "../pages/CadastroClientes";
+import ReservarMesa from "../pages/ReservarMesa";
+import PrivateRoute from "../utils/PrivateRoute";
 
 export default function Routing() {
     return (
@@ -12,7 +14,6 @@ export default function Routing() {
                 <Route path="/perfil" element={<Perfil />}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/cadastro/cliente" element={<CadastroClientes />}></Route>
-
             </Routes>
         </BrowserRouter>
     )
