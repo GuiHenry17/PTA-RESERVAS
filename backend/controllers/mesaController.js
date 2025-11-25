@@ -4,9 +4,9 @@ const client = new PrismaClient();
 class mesaController {
 
     static async cadastrar(req, res) {
-        const { codigo, n_lugares, status } = req.body;
+        const { codigo, n_pessoas, status } = req.body;
 
-        if (!codigo || !n_lugares) {
+        if (!codigo || !n_pessoas) {
             return res.json({
                 mensagem: "Todos os campos são obrigatórios!",
                 erro: true,
@@ -17,7 +17,7 @@ class mesaController {
             const mesa = await client.mesa.create({
                 data: {
                     codigo,
-                    n_lugares: parseInt(n_lugares),
+                    n_pessoas: parseInt(n_pessoas),
                     status: status || "disponível",
                 },
             });
@@ -81,16 +81,16 @@ class mesaController {
 
     static async atualizar(req, res) {
         const mesaId = parseInt(req.params.id);
-        const { codigo, n_lugares, status } = req.body;
+        const { codigo, n_pessoas, status } = req.body;
 
-        if (!codigo || !n_lugares || !status) {
+        if (!codigo || !n_pessoas || !status) {
             return res.json({ mensagem: "Todos os campos são obrigatórios!", erro: true });
         }
 
         try {
             const mesa = await client.mesa.update({
                 where: { id: mesaId },
-                data: { codigo, n_lugares, status },
+                data: { codigo, n_pessoas, status },
             });
 
             return res.json({
