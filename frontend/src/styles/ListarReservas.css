@@ -1,0 +1,107 @@
+.tela-fundo {
+  min-height: 100vh;
+  width: 100%;
+  background-image: url("https://static.vecteezy.com/ti/fotos-gratis/p1/1959920-turva-ocupado-restaurante-fundo-gratis-foto.JPG");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reservas-container {
+  width: 90%;
+  max-width: 900px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.5s ease;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #7a3b1d;
+  margin-bottom: 1.5rem;
+}
+
+.botao {
+  display: block;
+  margin: 0 auto 20px;
+  padding: 12px 22px;
+
+  background: #9c3b1b;
+  color: white;
+
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.botao:hover {
+  background: #b44a24;
+  transform: scale(1.03);
+}
+
+.erro {
+  text-align: center;
+  background: #ffb4b4;
+  border-radius: 10px;
+  padding: 10px;
+  color: #7a0000;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.nenhuma {
+  text-align: center;
+  font-size: 1rem;
+  color: #5a2a1c;
+  margin-top: 10px;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffffd2;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tabela th {
+  background: #cfa57b;
+  color: #5a2a1c;
+
+  padding: 14px;
+  font-weight: 700;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.tabela td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #e4d2b8;
+  color: #3a1f14;
+}
+
+.tabela tr:hover td {
+  background: #f2e5d5;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -3,38 +3,38 @@ import { useNavigate } from "react-router-dom";
 import styles from "../styles/Perfil.module.css";
 
 export default function Perfil() {
-  const [usuario, setUsuario] = useState(null)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+  const [usuario, setUsuario] = useState(null);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/")
-      return
+      navigate("/");
+      return;
     }
 
     fetch("http://localhost:3000/auth/me", {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.usuario) {
-          setUsuario(data.usuario)
+          setUsuario(data.usuario);
         } else {
-          setError("Falha ao carregar informações do usuário")
+          setError("Falha ao carregar informações do usuário");
         }
       })
-      .catch(() => setError("Erro de conexão com o servidor"))
-  }, [navigate])
+      .catch(() => setError("Erro de conexão com o servidor"));
+  }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token")
-    navigate("/")
-  }
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
   return (
     <div className={styles.container}>
@@ -43,8 +43,12 @@ export default function Perfil() {
         {error && <p className={styles.error}>{error}</p>}
         {usuario ? (
           <>
-            <p><strong>Nome:</strong> {usuario.nome}</p>
-            <p><strong>Email:</strong> {usuario.email}</p>
+            <p>
+              <strong>Nome:</strong> {usuario.nome}
+            </p>
+            <p>
+              <strong>Email:</strong> {usuario.email}
+            </p>
           </>
         ) : (
           <p>Carregando informações...</p>
@@ -54,5 +58,5 @@ export default function Perfil() {
         </button>
       </div>
     </div>
-  )
+  );
 }

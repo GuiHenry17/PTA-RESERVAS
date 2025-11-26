@@ -7,43 +7,51 @@ const client = new PrismaClient();
 class usuarioController {
 
     static async cadastrar(req, res) {
-        const { nome, email, password } = req.body;
+    const { nome, sobrenome, estado, cidade, bairro, rua, numero, email, password } = req.body;
 
-        if (!nome || !email || !password) {
-            return res.json({
-                mensagem: "Todos os campos são obrigatórios!",
-                erro: true
-            })
-        }
-
-        const salt = bcrypt.genSaltSync(8)
-        const hashpassword = bcrypt.hashSync(password, salt)
-
-        try {
-            const usuario = await client.usuario.create({
-                data: {
-                    nome,
-                    email,
-                    password: hashpassword,
-                },
-            });
-
-            const token = jwt.sign({ id: usuario.id }, process.env.SENHA_SERVIDOR,
-                { expiresIn: "2h" });
-
-            res.json({
-                mensagem: "Usuário cadastrado com sucesso!",
-                erro: false,
-                token: token
-            })
-        }
-        catch {
-            return res.json({
-                mensagem: "Falha ao criar usuário!",
-                erro: true
-            })
-        }
+    if (!nome || !sobrenome || !estado || !cidade || !bairro || !rua || !numero || !email || !password) {
+        return res.json({
+            mensagem: "Todos os campos são obrigatórios!",
+            erro: true
+        });
     }
+
+    const salt = bcrypt.genSaltSync(8);
+    const hashpassword = bcrypt.hashSync(password, salt);
+
+    try {
+        const usuario = await client.usuario.create({
+            data: {
+                nome,
+                sobrenome,
+                estado,
+                cidade,
+                bairro,
+                rua,
+                numero: Number(numero),
+                email,
+                password: hashpassword,
+            },
+        });
+
+        const token = jwt.sign({ id: usuario.id }, process.env.SENHA_SERVIDOR,
+            { expiresIn: "2h" });
+
+        res.json({
+            mensagem: "Usuário cadastrado com sucesso!",
+            erro: false,
+            token: token
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.json({
+            mensagem: "Falha ao criar usuário!",
+            erro: true
+        });
+    }
+}
+
 
     static async login(req, res) {
         const { email, password } = req.body;

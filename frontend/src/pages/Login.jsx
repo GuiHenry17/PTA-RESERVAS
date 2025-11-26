@@ -1,34 +1,35 @@
 import { useState } from "react";
 import styles from "../styles/Login.module.css";
+import Footer from "../components/Footer";
 
 export default function Login() {
-  const [email, setEmail] = useState("")
-  const [senha, setSenha] = useState("")
-  const [error, setError] = useState("")
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     try {
       const response = await fetch("http://localhost:3000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: senha }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.token) {
-        localStorage.setItem("token", data.token)
-        window.location.href = "/"
+        localStorage.setItem("token", data.token);
+        window.location.href = "/";
       } else {
-        setError(data.msg || "Erro ao fazer login")
+        setError(data.msg || "Erro ao fazer login");
       }
     } catch (err) {
-      setError("Erro de conexão com o servidor")
+      setError("Erro de conexão com o servidor");
     }
-  }
+  };
 
   return (
     <div className={styles.container}>
@@ -56,6 +57,7 @@ export default function Login() {
           Entrar
         </button>
       </form>
+      <Footer />
     </div>
-  )
+  );
 }

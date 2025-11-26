@@ -110,7 +110,6 @@ export default function ReservarMesa() {
           value={nPessoas}
           onChange={(e) => setNPessoas(e.target.value)}
           min="1"
-          max={mesaSelecionada ? mesaSelecionada.n_lugares : 1}
           required
         />
 
