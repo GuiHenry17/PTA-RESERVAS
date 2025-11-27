@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/ReservarMesa.module.css";
+import VoltarHome from "../components/Voltar";
 
 export default function ReservarMesa() {
   const [mesas, setMesas] = useState([]);
@@ -72,8 +73,14 @@ export default function ReservarMesa() {
 
   const mesaSelecionada = mesas.find((m) => m.id === Number(mesaId));
 
+  const agora = new Date();
+  agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+  const minDate = agora.toISOString().slice(0, 16);
+
   return (
     <div className={styles.container}>
+      <VoltarHome />
+
       <form className={styles.form} onSubmit={reservar}>
         <h2>Reservar Mesa</h2>
 
@@ -96,10 +103,11 @@ export default function ReservarMesa() {
 
         <label>Data</label>
         <input
-          type="date"
+          type="datetime-local"
           className={styles.input}
           value={data}
           onChange={(e) => setData(e.target.value)}
+          min={minDate}
           required
         />
 
@@ -110,6 +118,7 @@ export default function ReservarMesa() {
           value={nPessoas}
           onChange={(e) => setNPessoas(e.target.value)}
           min="1"
+          max={mesaSelecionada ? mesaSelecionada.n_lugares : 1}
           required
         />
 

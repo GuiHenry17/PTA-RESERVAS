@@ -1,0 +1,21 @@
+.voltar-home {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  padding: 10px 16px;
+
+  background-color: #7a3b19;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  z-index: 9999;
+  transition: 0.2s;
+}
+
+.voltar-home:hover {
+  background-color: #5e2d14;
+}

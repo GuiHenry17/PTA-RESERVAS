@@ -1,20 +1,18 @@
 .footer {
-  position: fixed; 
+  position: fixed;
   bottom: 0;
   left: 0;
 
   width: 100%;
   padding: 20px;
 
-  background: #f8f9fa; 
+  background: #f8f9fa;
   color: #333;
   text-align: center;
 
   border-top: 2px solid #652b1c;
 
   font-size: 0.95rem;
-  margin-top: 50px;
-  
 }
 
 .subtext {

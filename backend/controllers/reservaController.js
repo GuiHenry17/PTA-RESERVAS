@@ -74,7 +74,7 @@ class reservaController {
 
     try {
       const reservas = await client.reserva.findMany({
-        where: { usuarioId },
+        where: { usuario_id: usuarioId },
         include: {
           mesa: true,
         },

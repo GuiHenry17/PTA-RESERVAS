@@ -4,20 +4,28 @@
   background-image: url("https://static.vecteezy.com/ti/fotos-gratis/p1/1959920-turva-ocupado-restaurante-fundo-gratis-foto.JPG");
   background-size: cover;
   background-position: center;
+
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .reservas-container {
-  width: 90%;
+  width: 100%;
   max-width: 900px;
   padding: 2rem;
+
   background: rgba(255, 255, 255, 0.45);
   border-radius: 16px;
   backdrop-filter: blur(6px);
   box-shadow: 0 0 18px rgba(0, 0, 0, 0.25);
+
   animation: fadeIn 0.5s ease;
+
+  overflow-x: auto;
 }
 
 .titulo {
@@ -69,6 +77,7 @@
 
 .tabela {
   width: 100%;
+  min-width: 350px;
   border-collapse: collapse;
   background: #ffffffd2;
   border-radius: 12px;
@@ -96,6 +105,49 @@
   background: #f2e5d5;
 }
 
+@media (max-width: 768px) {
+  .reservas-container {
+    padding: 1.5rem;
+  }
+
+  .titulo {
+    font-size: 1.7rem;
+  }
+
+  .botao {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.05rem;
+  }
+
+  .tabela th,
+  .tabela td {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .reservas-container {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .titulo {
+    font-size: 1.4rem;
+  }
+
+  .tabela th,
+  .tabela td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+
+  .botao {
+    font-size: 1rem;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -103,5 +155,45 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@media (max-width: 400px) {
+
+  .tela-fundo {
+    padding-top: 50px; 
+  }
+
+  .reservas-container {
+    padding: 0.8rem;
+    width: 100%;
+  }
+
+  .titulo {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .botao {
+    width: 100%;
+    margin-bottom: 1.2rem;
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  
+  .reservas-container {
+    overflow-x: auto; 
+  }
+
+  .tabela {
+    min-width: 450px; 
+  }
+
+  .tabela th,
+  .tabela td {
+    padding: 8px;
+    font-size: 0.8rem;
   }
 }

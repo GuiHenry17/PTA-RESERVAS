@@ -8,6 +8,7 @@ import ListarMesas from "./pages/ListarMesas";
 import PrivateRoute from "./utils/PrivateRoute";
 import ReservarMesa from "./pages/ReservarMesa";
 import ListarReservas from "./pages/ListarReservas";
+import Cardapio from "./pages/Cardapio";
 
 export default function App() {
   return (
@@ -17,30 +18,6 @@ export default function App() {
 
         <Route path="/" element={<Home />} />
         <Route path="/cadastro" element={<CadastroClientes />} />
-        <Route
-          path="/perfil"
-          element={
-            <PrivateRoute>
-              <Perfil />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/cadastro/mesa"
-          element={
-            <PrivateRoute>
-              <CadastroMesas />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/mesas"
-          element={
-            <PrivateRoute>
-              <ListarMesas />
-            </PrivateRoute>
-          }
-        />
         <Route
           path="/reservar"
           element={
@@ -57,6 +34,7 @@ export default function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/cardapio" element={<Cardapio />} />
       </Routes>
     </Router>
   );

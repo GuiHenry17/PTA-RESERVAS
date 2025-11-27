@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "../styles/Login.module.css";
 import Footer from "../components/Footer";
 
@@ -6,6 +6,19 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
+  const [popup, setPopup] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      setPopup(true);
+
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,15 +39,26 @@ export default function Login() {
       } else {
         setError(data.msg || "Erro ao fazer login");
       }
-    } catch (err) {
+    } catch {
       setError("Erro de conexão com o servidor");
     }
   };
 
   return (
     <div className={styles.container}>
+      {}
+      {popup && (
+        <div className={styles["popup-overlay"]}>
+          <div className={styles["popup-center"]}>
+            <h3>Você já está logado!</h3>
+            <p>Redirecionando para a página inicial...</p>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleLogin} className={styles.form}>
         <h2>Login</h2>
+
         {error && <p className={styles.error}>{error}</p>}
 
         <input
@@ -45,6 +69,7 @@ export default function Login() {
           required
           className={styles.input}
         />
+
         <input
           type="password"
           placeholder="Senha"
@@ -53,10 +78,12 @@ export default function Login() {
           required
           className={styles.input}
         />
+
         <button type="submit" className={styles.button}>
           Entrar
         </button>
       </form>
+
       <Footer />
     </div>
   );

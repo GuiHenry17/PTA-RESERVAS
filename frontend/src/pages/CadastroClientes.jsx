@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "../styles/CadastroCliente.module.css";
 import Footer from "../components/Footer";
+import VoltarHome from "../components/Voltar";
 
 export default function CadastroCliente() {
   const [nome, setNome] = useState("");
@@ -12,9 +13,22 @@ export default function CadastroCliente() {
   const [numero, setNumero] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [popup, setPopup] = useState(false);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      setPopup(true);
+
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+    }
+  }, []);
 
   const handleCadastro = async (e) => {
     e.preventDefault();
@@ -45,6 +59,25 @@ export default function CadastroCliente() {
       } else {
         setError(data.mensagem || "Erro ao cadastrar usuário.");
       }
+
+      try {
+        const response = await fetch("http://localhost:3000/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password: senha }),
+        });
+
+        const data = await response.json();
+
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          window.location.href = "/";
+        } else {
+          setError(data.msg || "Erro ao fazer login");
+        }
+      } catch (err) {
+        setError("Erro de conexão com o servidor");
+      }
     } catch (err) {
       setError("Erro de conexão com o servidor.");
       console.log(err);
@@ -53,6 +86,15 @@ export default function CadastroCliente() {
 
   return (
     <div className={styles.container}>
+      {popup && (
+        <div className={styles["popup-overlay"]}>
+          <div className={styles["popup-center"]}>
+            <h3>Você já está logado!</h3>
+            <p>Redirecionando para a página inicial...</p>
+          </div>
+        </div>
+      )}
+      <VoltarHome/>
       <form className={styles.form} onSubmit={handleCadastro}>
         <h2 className={styles.title}>Cadastro de Usuário</h2>
 

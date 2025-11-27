@@ -52,7 +52,7 @@
   background: #5e2d14;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 916px) {
   .header {
     padding: 15px 20px;
   }
@@ -96,4 +96,23 @@
     padding: 8px 12px;
     font-size: 0.9rem;
   }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logoutBtn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #5a2a1c;
+  cursor: pointer;
+}
+
+.logoutBtn:hover {
+  color: #000;
 }

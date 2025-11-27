@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../styles/ListarReservas.css";
+import VoltarHome from "../components/Voltar";
 
 export default function ListarReservas() {
   const [reservas, setReservas] = useState([]);
@@ -11,13 +12,28 @@ export default function ListarReservas() {
     setCarregando(true);
 
     try {
-      const response = await fetch("http://localhost:3000/reservas");
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setErro("Usuário não está logado.");
+        setCarregando(false);
+        return;
+      }
+
+      const response = await fetch("http://localhost:3000/reservas", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const dados = await response.json();
 
       const lista = Array.isArray(dados.reservas) ? dados.reservas : [];
 
       setReservas(lista);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setErro("Erro ao carregar reservas.");
     }
 
@@ -26,6 +42,7 @@ export default function ListarReservas() {
 
   return (
     <div className="tela-fundo">
+      <VoltarHome/>
       <div className="reservas-container">
         <h1 className="titulo">Minhas Reservas</h1>
 
@@ -48,15 +65,11 @@ export default function ListarReservas() {
               {reservas.map((r) => (
                 <tr key={r.id}>
                   <td>{r.id}</td>
-
-                  {}
-                  <td>{r.mesa?.id ?? "—"}</td>
-
-                  {}
+                  <td>{r.mesa?.codigo ?? "—"}</td>
                   <td>
                     {(() => {
                       const d = new Date(r.data);
-                      d.setHours(d.getHours() + 3); 
+                      d.setHours(d.getHours());
                       return d.toLocaleString("pt-BR", {
                         dateStyle: "short",
                         timeStyle: "short",
