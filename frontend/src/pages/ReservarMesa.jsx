@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/ReservarMesa.module.css";
 import VoltarHome from "../components/Voltar";
+import Footer from "../components/Footer";
 
 export default function ReservarMesa() {
   const [mesas, setMesas] = useState([]);
@@ -126,6 +127,7 @@ export default function ReservarMesa() {
           Reservar
         </button>
       </form>
+      <Footer/>
     </div>
   );
 }

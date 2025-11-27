@@ -1,5 +1,6 @@
 import styles from "../styles/Cardapio.module.css";
 import VoltarHome from "../components/Voltar";
+import Footer from "../components/Footer";
 
 export default function Cardapio() {
   const itens = [
@@ -38,6 +39,7 @@ export default function Cardapio() {
           ))}
         </div>
       </div>
+      <Footer/>
     </div>
   );
 }

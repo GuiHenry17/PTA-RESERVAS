@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../styles/ListarReservas.css";
 import VoltarHome from "../components/Voltar";
+import Footer from "../components/Footer";
 
 export default function ListarReservas() {
   const [reservas, setReservas] = useState([]);
@@ -84,6 +85,7 @@ export default function ListarReservas() {
           <p className="nenhuma">Nenhuma reserva encontrada.</p>
         )}
       </div>
+      <Footer/>
     </div>
   );
 }
