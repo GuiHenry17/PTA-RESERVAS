@@ -7,11 +7,19 @@ const client = new PrismaClient();
 class usuarioController {
 
     static async cadastrar(req, res) {
-    const { nome, sobrenome, estado, cidade, bairro, rua, numero, email, password } = req.body;
+    const { nome, sobrenome, estado, cidade, bairro, rua, numero, email, password, tipo } = req.body;
 
     if (!nome || !sobrenome || !estado || !cidade || !bairro || !rua || !numero || !email || !password) {
         return res.json({
             mensagem: "Todos os campos são obrigatórios!",
+            erro: true
+        });
+    }
+
+    const tiposValidos = ["cliente", "admin"];
+    if (tipo && !tiposValidos.includes(tipo)) {
+        return res.json({
+            mensagem: "Tipo de usuário inválido! Somente 'cliente' ou 'admin'.",
             erro: true
         });
     }
@@ -31,6 +39,7 @@ class usuarioController {
                 numero: Number(numero),
                 email,
                 password: hashpassword,
+                tipo: tipo || "cliente",
             },
         });
 

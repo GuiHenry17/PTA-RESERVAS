@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../styles/CadastroCliente.module.css";
 import Footer from "../components/Footer";
 import VoltarHome from "../components/Voltar";
+import API_URL from "../utils/api";
 
 export default function CadastroCliente() {
   const [nome, setNome] = useState("");
@@ -36,7 +37,7 @@ export default function CadastroCliente() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:3000/auth/cadastro", {
+      const response = await fetch(`${API_URL}/auth/cadastro`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -61,7 +62,7 @@ export default function CadastroCliente() {
       }
 
       try {
-        const response = await fetch("http://localhost:3000/auth/login", {
+        const response = await fetch(`${API_URL}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password: senha }),
@@ -95,109 +96,113 @@ export default function CadastroCliente() {
         </div>
       )}
       <VoltarHome/>
-      <form className={styles.form} onSubmit={handleCadastro}>
-        <h2 className={styles.title}>Cadastro de Usuário</h2>
 
-        {error && <p className={styles.error}>{error}</p>}
-        {success && <p className={styles.success}>{success}</p>}
+      <div className={styles.content}>
+        <form className={styles.form} onSubmit={handleCadastro}>
+          <h2 className={styles.title}>Cadastro de Usuário</h2>
 
-        <div className={styles.group}>
+          {error && <p className={styles.error}>{error}</p>}
+          {success && <p className={styles.success}>{success}</p>}
+
+          <div className={styles.group}>
+            <input
+              type="text"
+              placeholder="Nome"
+              name="Nome"
+              className={styles.input}
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Sobrenome"
+              name="sobrenome"
+              className={styles.input}
+              value={sobrenome}
+              onChange={(e) => setSobrenome(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className={styles.group}>
+            <input
+              type="text"
+              placeholder="Estado"
+              name="estado"
+              className={styles.input}
+              value={estado}
+              onChange={(e) => setEstado(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Cidade"
+              name="cidade"
+              className={styles.input}
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
+              required
+            />
+          </div>
+
           <input
             type="text"
-            placeholder="Nome"
-            name="Nome"
+            placeholder="Bairro"
+            name="bairro"
             className={styles.input}
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
+            value={bairro}
+            onChange={(e) => setBairro(e.target.value)}
             required
           />
+
+          <div className={styles.group}>
+            <input
+              type="text"
+              placeholder="Rua"
+              name="rua"
+              className={styles.input}
+              value={rua}
+              onChange={(e) => setRua(e.target.value)}
+              required
+            />
+            <input
+              type="number"
+              placeholder="Nº"
+              name="numero"
+              className={styles.input}
+              value={numero}
+              onChange={(e) => setNumero(e.target.value)}
+              required
+            />
+          </div>
+
           <input
-            type="text"
-            placeholder="Sobrenome"
-            name="sobrenome"
+            type="email"
+            placeholder="E-mail"
+            name="email"
             className={styles.input}
-            value={sobrenome}
-            onChange={(e) => setSobrenome(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
 
-        <div className={styles.group}>
           <input
-            type="text"
-            placeholder="Estado"
-            name="estado"
+            type="password"
+            placeholder="Senha"
+            name="senha"
             className={styles.input}
-            value={estado}
-            onChange={(e) => setEstado(e.target.value)}
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
             required
           />
-          <input
-            type="text"
-            placeholder="Cidade"
-            name="cidade"
-            className={styles.input}
-            value={cidade}
-            onChange={(e) => setCidade(e.target.value)}
-            required
-          />
-        </div>
 
-        <input
-          type="text"
-          placeholder="Bairro"
-          name="bairro"
-          className={styles.input}
-          value={bairro}
-          onChange={(e) => setBairro(e.target.value)}
-          required
-        />
+          <button className={styles.button} type="submit">
+            Cadastrar
+          </button>
+        </form>
+      </div>
 
-        <div className={styles.group}>
-          <input
-            type="text"
-            placeholder="Rua"
-            name="rua"
-            className={styles.input}
-            value={rua}
-            onChange={(e) => setRua(e.target.value)}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Nº"
-            name="numero"
-            className={styles.input}
-            value={numero}
-            onChange={(e) => setNumero(e.target.value)}
-            required
-          />
-        </div>
-
-        <input
-          type="email"
-          placeholder="E-mail"
-          name="email"
-          className={styles.input}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Senha"
-          name="senha"
-          className={styles.input}
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          required
-        />
-
-        <button className={styles.button} type="submit">
-          Cadastrar
-        </button>
-      </form>
       <Footer />
     </div>
   );

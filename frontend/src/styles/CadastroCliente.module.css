@@ -1,17 +1,21 @@
 .container {
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
 
-  background: url("https://www.itl.cat/pngfile/big/303-3033775_restaurant-wallpapers.jpg");
+  background: url("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=80");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
 
-  padding: 20px;
-  margin-bottom: 100px;
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px 40px;
 }
 
 .form {

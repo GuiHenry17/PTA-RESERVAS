@@ -130,4 +130,13 @@ dist
 
 /generated/prisma
 
-/generated/prisma
+# Variáveis de ambiente — nunca versionar
+.env
+.env.*
+!.env.example
+
+# Banco de dados local SQLite
+prisma/*.db
+prisma/*.db-journal
+prisma/*.db-wal
+prisma/*.db-shm

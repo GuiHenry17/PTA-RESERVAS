@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "../styles/ReservarMesa.module.css";
 import VoltarHome from "../components/Voltar";
 import Footer from "../components/Footer";
+import API_URL from "../utils/api";
 
 export default function ReservarMesa() {
   const [mesas, setMesas] = useState([]);
@@ -17,7 +18,7 @@ export default function ReservarMesa() {
 
   async function buscarMesas() {
     try {
-      const response = await fetch("http://localhost:3000/mesas");
+      const response = await fetch(`${API_URL}/mesas`);
       const result = await response.json();
 
       if (!result.erro) {
@@ -43,7 +44,7 @@ export default function ReservarMesa() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/reservas/novo", {
+      const response = await fetch(`${API_URL}/reservas/novo`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,51 +83,54 @@ export default function ReservarMesa() {
     <div className={styles.container}>
       <VoltarHome />
 
-      <form className={styles.form} onSubmit={reservar}>
-        <h2>Reservar Mesa</h2>
+      <div className={styles.content}>
+        <form className={styles.form} onSubmit={reservar}>
+          <h2>Reservar Mesa</h2>
 
-        {error && <p className={styles.error}>{error}</p>}
-        {success && <p className={styles.success}>{success}</p>}
+          {error && <p className={styles.error}>{error}</p>}
+          {success && <p className={styles.success}>{success}</p>}
 
-        <label>Mesa</label>
-        <select
-          className={styles.select}
-          value={mesaId}
-          onChange={(e) => setMesaId(e.target.value)}
-        >
-          <option value="">Selecione uma mesa</option>
-          {mesas.map((mesa) => (
-            <option key={mesa.id} value={mesa.id}>
-              Mesa {mesa.codigo} — {mesa.n_lugares} lugares
-            </option>
-          ))}
-        </select>
+          <label>Mesa</label>
+          <select
+            className={styles.select}
+            value={mesaId}
+            onChange={(e) => setMesaId(e.target.value)}
+          >
+            <option value="">Selecione uma mesa</option>
+            {mesas.map((mesa) => (
+              <option key={mesa.id} value={mesa.id}>
+                Mesa {mesa.codigo} — {mesa.n_lugares} lugares
+              </option>
+            ))}
+          </select>
 
-        <label>Data</label>
-        <input
-          type="datetime-local"
-          className={styles.input}
-          value={data}
-          onChange={(e) => setData(e.target.value)}
-          min={minDate}
-          required
-        />
+          <label>Data</label>
+          <input
+            type="datetime-local"
+            className={styles.input}
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            min={minDate}
+            required
+          />
 
-        <label>Número de Pessoas</label>
-        <input
-          type="number"
-          className={styles.input}
-          value={nPessoas}
-          onChange={(e) => setNPessoas(e.target.value)}
-          min="1"
-          max={mesaSelecionada ? mesaSelecionada.n_lugares : 1}
-          required
-        />
+          <label>Número de Pessoas</label>
+          <input
+            type="number"
+            className={styles.input}
+            value={nPessoas}
+            onChange={(e) => setNPessoas(e.target.value)}
+            min="1"
+            max={mesaSelecionada ? mesaSelecionada.n_lugares : 1}
+            required
+          />
 
-        <button className={styles.button} type="submit">
-          Reservar
-        </button>
-      </form>
+          <button className={styles.button} type="submit">
+            Reservar
+          </button>
+        </form>
+      </div>
+
       <Footer/>
     </div>
   );

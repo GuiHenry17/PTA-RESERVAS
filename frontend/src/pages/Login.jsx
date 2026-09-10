@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import styles from "../styles/Login.module.css";
 import Footer from "../components/Footer";
+import VoltarHome from "../components/Voltar";
+import API_URL from "../utils/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,7 +27,7 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: senha }),
@@ -46,7 +48,6 @@ export default function Login() {
 
   return (
     <div className={styles.container}>
-      {}
       {popup && (
         <div className={styles["popup-overlay"]}>
           <div className={styles["popup-center"]}>
@@ -56,33 +57,37 @@ export default function Login() {
         </div>
       )}
 
-      <form onSubmit={handleLogin} className={styles.form}>
-        <h2>Login</h2>
+      <VoltarHome />
 
-        {error && <p className={styles.error}>{error}</p>}
+      <div className={styles.content}>
+        <form onSubmit={handleLogin} className={styles.form}>
+          <h2>Login</h2>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className={styles.input}
-        />
+          {error && <p className={styles.error}>{error}</p>}
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          required
-          className={styles.input}
-        />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className={styles.input}
+          />
 
-        <button type="submit" className={styles.button}>
-          Entrar
-        </button>
-      </form>
+          <input
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            required
+            className={styles.input}
+          />
+
+          <button type="submit" className={styles.button}>
+            Entrar
+          </button>
+        </form>
+      </div>
 
       <Footer />
     </div>

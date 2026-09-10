@@ -6,11 +6,17 @@
   background-position: center;
 
   display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+}
+
+.reservas-content {
+  flex: 1;
+  display: flex;
   justify-content: center;
   align-items: flex-start;
-
-  padding: 20px;
-  box-sizing: border-box;
+  padding: 70px 20px 40px;
 }
 
 .reservas-container {

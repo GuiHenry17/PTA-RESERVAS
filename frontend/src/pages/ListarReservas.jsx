@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../styles/ListarReservas.css";
 import VoltarHome from "../components/Voltar";
 import Footer from "../components/Footer";
+import API_URL from "../utils/api";
 
 export default function ListarReservas() {
   const [reservas, setReservas] = useState([]);
@@ -21,7 +22,7 @@ export default function ListarReservas() {
         return;
       }
 
-      const response = await fetch("http://localhost:3000/reservas", {
+      const response = await fetch(`${API_URL}/reservas`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -44,46 +45,47 @@ export default function ListarReservas() {
   return (
     <div className="tela-fundo">
       <VoltarHome/>
-      <div className="reservas-container">
-        <h1 className="titulo">Minhas Reservas</h1>
+      <div className="reservas-content">
+        <div className="reservas-container">
+          <h1 className="titulo">Minhas Reservas</h1>
 
-        <button className="botao" onClick={carregarReservas}>
-          {carregando ? "Carregando..." : "Listar Reservas"}
-        </button>
+          <button className="botao" onClick={carregarReservas}>
+            {carregando ? "Carregando..." : "Listar Reservas"}
+          </button>
 
-        {erro && <p className="erro">{erro}</p>}
+          {erro && <p className="erro">{erro}</p>}
 
-        {reservas.length > 0 ? (
-          <table className="tabela">
-            <thead>
-              <tr>
-                <th>Nº Reserva</th>
-                <th>Mesa</th>
-                <th>Data</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reservas.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.id}</td>
-                  <td>{r.mesa?.codigo ?? "—"}</td>
-                  <td>
-                    {(() => {
-                      const d = new Date(r.data);
-                      d.setHours(d.getHours());
-                      return d.toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      });
-                    })()}
-                  </td>
+          {reservas.length > 0 ? (
+            <table className="tabela">
+              <thead>
+                <tr>
+                  <th>Nº Reserva</th>
+                  <th>Mesa</th>
+                  <th>Data</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="nenhuma">Nenhuma reserva encontrada.</p>
-        )}
+              </thead>
+              <tbody>
+                {reservas.map((r) => (
+                  <tr key={r.id}>
+                    <td>{r.id}</td>
+                    <td>{r.mesa?.codigo ?? "—"}</td>
+                    <td>
+                      {(() => {
+                        const d = new Date(r.data);
+                        return d.toLocaleString("pt-BR", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        });
+                      })()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="nenhuma">Nenhuma reserva encontrada.</p>
+          )}
+        </div>
       </div>
       <Footer/>
     </div>

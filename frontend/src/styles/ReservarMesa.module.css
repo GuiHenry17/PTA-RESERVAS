@@ -1,17 +1,26 @@
 .container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   background-image: url("https://static.vecteezy.com/ti/fotos-gratis/p1/1959920-turva-ocupado-restaurante-fundo-gratis-foto.JPG");
-  align-items: center;
-  padding: 40px;
+  background-size: cover;
+  background-position: center;
   background-color: #fff7ef;
   min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 40px 40px;
 }
 
 .form {
   background: #ffffffa9;
   padding: 30px;
-  width: 380px;
+  width: 100%;
+  max-width: 400px;
   border-radius: 12px;
   border: 3px solid #3a3a3a;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -28,11 +37,18 @@
   font-weight: 700;
 }
 
+label {
+  font-weight: 600;
+  color: #652b1c;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
 .input,
 .select {
   width: 100%;
   padding: 0.8rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   border-radius: 6px;
   border: 2px solid #c4a697;
   font-size: 1rem;
@@ -45,6 +61,7 @@
 .select:focus {
   border-color: #652b1c;
   box-shadow: 0 0 6px rgba(101, 43, 28, 0.3);
+  outline: none;
 }
 
 .button {
@@ -91,5 +108,19 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .content {
+    padding: 60px 16px 40px;
+  }
+
+  .form {
+    padding: 20px;
+  }
+
+  .form h2 {
+    font-size: 1.4rem;
   }
 }

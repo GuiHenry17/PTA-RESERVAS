@@ -14,12 +14,20 @@ class reservaController {
     }
 
     try {
+
       const mesa = await client.mesa.findUnique({
         where: { id: parseInt(mesaId) },
       });
 
       if (!mesa) {
         return res.json({ mensagem: "Mesa não encontrada!", erro: true });
+      }
+
+      if (mesa.status === "reservada") {
+        return res.json({
+          mensagem: "A mesa já está ocupada e não pode ser reservada!",
+          erro: true,
+        });
       }
 
       const reservaExistente = await client.reserva.findFirst({
@@ -37,26 +45,20 @@ class reservaController {
         });
       }
 
-      const reserva = await client.reserva.create({
-        data: {
-          data: new Date(data),
-          n_pessoas: parseInt(n_pessoas),
-          mesa_id: parseInt(mesaId),
-          usuario_id: usuarioId,
-        },
-      });
-
-      await client.mesa.update({
-        where: { id: parseInt(mesaId) },
-        data: { status: "reservada" },
-      });
-
-      if (mesa.status === "reservada") {
-        return res.json({
-          mensagem: "A mesa já está ocupada e não pode ser reservada!",
-          erro: true,
-        });
-      }
+      const [reserva] = await client.$transaction([
+        client.reserva.create({
+          data: {
+            data: new Date(data),
+            n_pessoas: parseInt(n_pessoas),
+            mesa_id: parseInt(mesaId),
+            usuario_id: usuarioId,
+          },
+        }),
+        client.mesa.update({
+          where: { id: parseInt(mesaId) },
+          data: { status: "reservada" },
+        }),
+      ]);
 
       return res.json({
         mensagem: "Reserva criada com sucesso!",
@@ -96,7 +98,7 @@ class reservaController {
 
   static async cancelar(req, res) {
     const { reservaId } = req.body;
-    const usuarioId = req.userId;
+    const usuarioId = req.usuarioId;
 
     if (!reservaId) {
       return res.json({
@@ -107,7 +109,7 @@ class reservaController {
 
     try {
       const reserva = await client.reserva.findUnique({
-        where: { id: reservaId },
+        where: { id: parseInt(reservaId) },
       });
 
       if (!reserva) {
@@ -117,7 +119,7 @@ class reservaController {
         });
       }
 
-      if (reserva.usuarioId !== usuarioId) {
+      if (reserva.usuario_id !== usuarioId) {
         return res.json({
           mensagem: "Você não pode cancelar reservas de outro usuário!",
           erro: true,
@@ -125,7 +127,12 @@ class reservaController {
       }
 
       await client.reserva.delete({
-        where: { id: reservaId },
+        where: { id: parseInt(reservaId) },
+      });
+
+      await client.mesa.update({
+        where: { id: reserva.mesa_id },
+        data: { status: "disponível" },
       });
 
       return res.json({
