@@ -36,13 +36,19 @@ const verificaAdmin = async (req, res, next) => {
             where: { id: req.usuarioId },
         });
 
+        if (!usuario) {
+            return res.status(401).json({
+                msg: "Usuário não encontrado"
+            });
+        }
+
         if (usuario.tipo === "cliente") {
             return res.status(403).json({
                 msg: "Acesso negado, você não é admin"
             });
         }
 
-        next();  
+        next();
     } catch (err) {
         return res.status(500).json({
             msg: "Erro ao verificar tipo de usuário"

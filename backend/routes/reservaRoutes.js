@@ -5,6 +5,8 @@ const auth = require("../middlewares/auth");
 
 router.post("/novo", auth.verificarAutenticacao, reservaController.reservar);
 
+router.get("/todas", auth.verificarAutenticacao, auth.verificaAdmin, reservaController.todasReservas);
+
 router.get("/", auth.verificarAutenticacao, reservaController.minhasReservas);
 
 router.delete("/", auth.verificarAutenticacao, reservaController.cancelar);

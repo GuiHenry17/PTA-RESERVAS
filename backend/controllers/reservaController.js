@@ -148,6 +148,32 @@ class reservaController {
     }
   }
 
+  static async todasReservas(req, res) {
+    try {
+      const reservas = await client.reserva.findMany({
+        include: {
+          mesa: true,
+          usuario: {
+            select: { id: true, nome: true, sobrenome: true, email: true },
+          },
+        },
+        orderBy: { data: "desc" },
+      });
+
+      return res.json({
+        mensagem: "Reservas encontradas com sucesso!",
+        erro: false,
+        reservas,
+      });
+    } catch (err) {
+      console.error("Erro ao buscar todas as reservas:", err);
+      return res.json({
+        mensagem: "Falha ao buscar reservas!",
+        erro: true,
+      });
+    }
+  }
+
   static async buscarPorData(req, res) {
     const { data } = req.query;
 

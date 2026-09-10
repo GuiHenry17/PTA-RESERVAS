@@ -43,8 +43,11 @@ class usuarioController {
             },
         });
 
-        const token = jwt.sign({ id: usuario.id }, process.env.SENHA_SERVIDOR,
-            { expiresIn: "2h" });
+        const token = jwt.sign(
+            { id: usuario.id, tipo: usuario.tipo },
+            process.env.SENHA_SERVIDOR,
+            { expiresIn: "2h" }
+        );
 
         res.json({
             mensagem: "Usuário cadastrado com sucesso!",
@@ -85,8 +88,11 @@ class usuarioController {
             });
         }
 
-        const token = jwt.sign({ id: usuario.id }, process.env.SENHA_SERVIDOR,
-            { expiresIn: "2h" });
+        const token = jwt.sign(
+            { id: usuario.id, tipo: usuario.tipo },
+            process.env.SENHA_SERVIDOR,
+            { expiresIn: "2h" }
+        );
 
         res.json({
             msg: "Autenticado com sucesso!",
@@ -118,25 +124,28 @@ class usuarioController {
 
     static async verificaAdmin(req, res, next) {
         if (req.usuarioId == null) {
-            return res.json({
-                msg: "Você não esstá autenticado"
+            return res.status(401).json({
+                msg: "Você não está autenticado"
             });
         }
 
         const usuario = await client.usuario.findUnique({
-            where: {
-                id: req.usuarioId,
-            },
-        })
-        if (usuario.tipo === "cliente") {
-            return res.json({
-                msg:
-                    "Acesso negado, você não é admin",
+            where: { id: req.usuarioId },
+        });
+
+        if (!usuario) {
+            return res.status(401).json({
+                msg: "Usuário não encontrado"
             });
         }
 
-        next()
+        if (usuario.tipo === "cliente") {
+            return res.status(403).json({
+                msg: "Acesso negado, você não é admin",
+            });
+        }
 
+        next();
     }
 
     static async getUsuarioLogado(req, res) {
