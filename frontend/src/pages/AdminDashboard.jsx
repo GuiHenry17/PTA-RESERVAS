@@ -35,7 +35,6 @@ export default function AdminDashboard() {
         reservas: reservas.length,
       });
     } catch {
-      // cards ficam zerados em caso de erro
     } finally {
       setCarregando(false);
     }

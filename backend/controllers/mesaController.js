@@ -88,17 +88,40 @@ class mesaController {
     }
 
     try {
+      const mesaAtual = await client.mesa.findUnique({
+        where: { id: mesaId },
+      });
+
+      if (!mesaAtual) {
+        return res.json({ mensagem: "Mesa não encontrada!", erro: true });
+      }
+
+      const liberandoMesa =
+        mesaAtual.status === "reservada" && status === "disponível";
+
+      if (liberandoMesa) {
+        await client.reserva.deleteMany({
+          where: {
+            mesa_id: mesaId,
+            status: true,
+          },
+        });
+      }
+
       const mesa = await client.mesa.update({
         where: { id: mesaId },
         data: { codigo, n_lugares: parseInt(n_lugares), status },
       });
 
       return res.json({
-        mensagem: "Mesa atualizada com sucesso!",
+        mensagem: liberandoMesa
+          ? "Mesa liberada e reserva cancelada com sucesso!"
+          : "Mesa atualizada com sucesso!",
         erro: false,
         mesa,
       });
     } catch (err) {
+      console.error("Erro ao atualizar mesa:", err);
       return res.json({ mensagem: "Falha ao atualizar mesa!", erro: true });
     }
   }

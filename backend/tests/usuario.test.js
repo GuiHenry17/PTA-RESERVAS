@@ -79,7 +79,6 @@ test("POST /auth/cadastro deve retornar Usuário cadastrado com sucesso para tip
 });
 
 test("POST /auth/login deve retornar Autenticado com sucesso", async () => {
-  // Garante que o usuário existe antes do login
   await request(app).post("/auth/cadastro").send({
     ...dadosBase,
     email: "login@example.com",
