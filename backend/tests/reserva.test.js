@@ -1,29 +1,10 @@
-/**
- * Suíte de testes — PTA-RESERVAS
- *
- * Cobre:
- *   - Cadastro e login de usuários
- *   - Criação, listagem e cancelamento de reservas
- *   - CRUD de mesas
- *   - BUG CRÍTICO: admin libera mesa → mesa existe, usuário existe, reserva fica inativa, mesa fica disponível
- *   - Nova reserva após liberação
- *   - Casos de borda: sem auth, sem permissão, entidade inexistente, estado duplicado, etc.
- */
-
 const request = require("supertest");
 const app = require("../app");
 const client = require("../prismaClient");
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
 const base = {
   nome: "Teste",
   sobrenome: "Silva",
-  estado: "SP",
-  cidade: "São Paulo",
-  bairro: "Centro",
-  rua: "Rua Principal",
-  numero: 100,
   password: "senha123",
 };
 
@@ -34,16 +15,12 @@ let adminId = 0;
 let mesaId = 0;
 let reservaId = 0;
 
-// E-mails únicos por execução para evitar colisão
 const ts = Date.now();
 const emailCliente = `cliente_${ts}@test.com`;
 const emailAdmin = `admin_${ts}@test.com`;
 const codigoMesa = `T${ts}`;
 
-// ─── Setup global ────────────────────────────────────────────────────────────
-
 afterAll(async () => {
-  // Limpeza: remove dados criados pelos testes (ordem respeitando FKs)
   try {
     if (reservaId) await client.reserva.deleteMany({ where: { id: reservaId } });
     if (mesaId) await client.mesa.deleteMany({ where: { id: mesaId } });
@@ -148,7 +125,7 @@ describe("POST /auth/login", () => {
       .send({ email: emailCliente, password: "senha123" });
 
     expect(res.status).toBe(200);
-    expect(res.body.msg).toBe("Autenticado com sucesso!");
+    expect(res.body.mensagem).toBe("Autenticado com sucesso!");
     expect(res.body.token).toBeDefined();
     clienteToken = res.body.token; // atualiza token
   });
@@ -158,7 +135,7 @@ describe("POST /auth/login", () => {
       .post("/auth/login")
       .send({ email: emailCliente, password: "errada" });
     expect(res.status).toBe(401);
-    expect(res.body.msg).toBe("Senha incorreta!");
+    expect(res.body.mensagem).toBe("Senha incorreta!");
   });
 
   test("deve rejeitar usuário inexistente", async () => {
@@ -166,7 +143,7 @@ describe("POST /auth/login", () => {
       .post("/auth/login")
       .send({ email: "fantasma@test.com", password: "senha123" });
     expect(res.status).toBe(401);
-    expect(res.body.msg).toBe("Usuário não encontrado!");
+    expect(res.body.mensagem).toBe("Usuário não encontrado!");
   });
 
   test("deve rejeitar requisição sem campos", async () => {
@@ -555,14 +532,15 @@ describe("Mesas — edge cases", () => {
     expect(res.status).toBe(401);
   });
 
-  test("DELETE /mesas/:id deve rejeitar remoção se houver reservas históricas", async () => {
-    // A mesa já tem reservas canceladas no banco
+  test("DELETE /mesas/:id deve permitir remoção de mesa com apenas reservas canceladas", async () => {
+    // A mesa tem reservas canceladas no banco — deve poder ser removida
     const res = await request(app)
       .delete(`/mesas/${mesaId}`)
       .set("Authorization", `Bearer ${adminToken}`);
-    expect(res.status).toBe(409);
-    expect(res.body.erro).toBe(true);
-    expect(res.body.mensagem).toMatch(/reservas vinculadas/i);
+    expect(res.status).toBe(200);
+    expect(res.body.erro).toBe(false);
+    // Limpa variável para o afterAll não tentar deletar novamente
+    mesaId = 0;
   });
 
   test("DELETE /mesas/:id deve retornar 404 para mesa inexistente", async () => {

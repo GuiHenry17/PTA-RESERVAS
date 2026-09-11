@@ -7,11 +7,6 @@ const ts = Date.now();
 const dadosBase = {
   nome: "Teste",
   sobrenome: "Silva",
-  estado: "SP",
-  cidade: "São Paulo",
-  bairro: "Centro",
-  rua: "Rua Principal",
-  numero: 100,
   password: "senha123",
 };
 
@@ -86,10 +81,7 @@ test("POST /auth/cadastro deve retornar Usuário cadastrado com sucesso para tip
 
 test("POST /auth/login deve retornar Autenticado com sucesso", async () => {
   // Cria o usuário antes de tentar logar
-  await request(app).post("/auth/cadastro").send({
-    ...dadosBase,
-    email: emailLogin,
-  });
+  await request(app).post("/auth/cadastro").send({ ...dadosBase, email: emailLogin });
 
   const res = await request(app).post("/auth/login").send({
     email: emailLogin,
@@ -97,7 +89,7 @@ test("POST /auth/login deve retornar Autenticado com sucesso", async () => {
   });
 
   expect(res.status).toBe(200);
-  expect(res.body.msg).toBe("Autenticado com sucesso!");
+  expect(res.body.mensagem).toBe("Autenticado com sucesso!");
   expect(res.body.token).toBeDefined();
 });
 
@@ -107,7 +99,7 @@ test("POST /auth/login deve retornar Senha incorreta", async () => {
     password: "errada",
   });
 
-  expect(res.body.msg).toBe("Senha incorreta!");
+  expect(res.body.mensagem).toBe("Senha incorreta!");
 });
 
 test("POST /auth/login deve retornar Usuário não encontrado", async () => {
@@ -116,7 +108,7 @@ test("POST /auth/login deve retornar Usuário não encontrado", async () => {
     password: "senha123",
   });
 
-  expect(res.body.msg).toBe("Usuário não encontrado!");
+  expect(res.body.mensagem).toBe("Usuário não encontrado!");
 });
 
 test("POST /auth/login deve retornar erro para email vazio (campo obrigatório)", async () => {
@@ -124,9 +116,9 @@ test("POST /auth/login deve retornar erro para email vazio (campo obrigatório)"
     email: "",
     password: "senha123",
   });
-  // Campo vazio → 400 (campos obrigatórios)
+
   expect(res.status).toBe(400);
-  expect(res.body.msg).toBeDefined();
+  expect(res.body.mensagem).toBeDefined();
 });
 
 test("POST /auth/login deve retornar erro para senha vazia (campo obrigatório)", async () => {
@@ -135,7 +127,6 @@ test("POST /auth/login deve retornar erro para senha vazia (campo obrigatório)"
     password: "",
   });
 
-  // Senha vazia é tratada como campo obrigatório faltando
   expect(res.status).toBe(400);
-  expect(res.body.msg).toBeDefined();
+  expect(res.body.mensagem).toBeDefined();
 });

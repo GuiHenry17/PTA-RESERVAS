@@ -1,9 +1,5 @@
 import { Navigate } from "react-router-dom";
 
-/**
- * Rota protegida: exige autenticação válida.
- * Redireciona para /login se não autenticado ou token expirado/inválido.
- */
 export default function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
 

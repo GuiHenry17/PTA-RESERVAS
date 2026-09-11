@@ -1,6 +1,9 @@
 # Dependências
 node_modules/
 
+# Lock files alternativos (usar apenas package-lock.json)
+yarn.lock
+
 # Variáveis de ambiente — nunca versionar
 .env
 .env.*

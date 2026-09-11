@@ -12,11 +12,6 @@ model Usuario {
   id        Int       @id @default(autoincrement())
   nome      String
   sobrenome String
-  estado    String
-  cidade    String
-  bairro    String
-  rua       String
-  numero    Int
   email     String    @unique
   password  String
   tipo      String    @default("cliente")
@@ -39,5 +34,9 @@ model Reserva {
   mesa_id    Int
   data       DateTime
   n_pessoas  Int
-  status     Boolean  @default(true)
+  status     Boolean  @default(true) // true = ativa, false = cancelada (soft-delete)
+
+  @@index([usuario_id])
+  @@index([mesa_id])
+  @@index([data])
 }

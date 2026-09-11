@@ -6,8 +6,7 @@ import API_URL from "../utils/api";
 
 export default function CadastroClientes() {
   const [form, setForm] = useState({
-    nome: "", sobrenome: "", estado: "", cidade: "",
-    bairro: "", rua: "", numero: "", email: "", password: "",
+    nome: "", sobrenome: "", email: "", password: "",
   });
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
@@ -30,23 +29,22 @@ export default function CadastroClientes() {
     setCarregando(true);
 
     try {
-      // 1. Cadastro
-      const resReg = await fetch(`${API_URL}/auth/cadastro`, {
+      const res = await fetch(`${API_URL}/auth/cadastro`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form }),
       });
 
-      const dataReg = await resReg.json();
+      const data = await res.json();
 
-      if (dataReg.erro) {
-        setErro(dataReg.mensagem || "Erro ao cadastrar usuário.");
+      if (data.erro) {
+        setErro(data.mensagem || "Erro ao cadastrar usuário.");
         return;
       }
 
-      // 2. Login automático — só ocorre após cadastro bem-sucedido
-      if (dataReg.token) {
-        localStorage.setItem("token", dataReg.token);
+      // Login automático após cadastro bem-sucedido
+      if (data.token) {
+        localStorage.setItem("token", data.token);
         navigate("/");
       }
     } catch {
@@ -92,49 +90,68 @@ export default function CadastroClientes() {
             <div className={styles.fieldGroup}>
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="nome">Nome *</label>
-                <input id="nome" type="text" className={styles.input} placeholder="João" value={form.nome} onChange={set("nome")} required disabled={carregando} autoComplete="given-name" />
+                <input
+                  id="nome"
+                  type="text"
+                  className={styles.input}
+                  placeholder="João"
+                  value={form.nome}
+                  onChange={set("nome")}
+                  required
+                  disabled={carregando}
+                  autoComplete="given-name"
+                />
               </div>
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="sobrenome">Sobrenome *</label>
-                <input id="sobrenome" type="text" className={styles.input} placeholder="Silva" value={form.sobrenome} onChange={set("sobrenome")} required disabled={carregando} autoComplete="family-name" />
-              </div>
-            </div>
-
-            <div className={styles.fieldGroup}>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="estado">Estado *</label>
-                <input id="estado" type="text" className={styles.input} placeholder="SP" value={form.estado} onChange={set("estado")} required disabled={carregando} maxLength={2} autoComplete="address-level1" />
-              </div>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="cidade">Cidade *</label>
-                <input id="cidade" type="text" className={styles.input} placeholder="São Paulo" value={form.cidade} onChange={set("cidade")} required disabled={carregando} autoComplete="address-level2" />
-              </div>
-            </div>
-
-            <div className={styles.field}>
-              <label className={styles.label} htmlFor="bairro">Bairro *</label>
-              <input id="bairro" type="text" className={styles.input} placeholder="Centro" value={form.bairro} onChange={set("bairro")} required disabled={carregando} />
-            </div>
-
-            <div className={styles.fieldGroup}>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="rua">Rua *</label>
-                <input id="rua" type="text" className={styles.input} placeholder="Rua das Flores" value={form.rua} onChange={set("rua")} required disabled={carregando} autoComplete="street-address" />
-              </div>
-              <div className={styles.field} style={{ maxWidth: "90px" }}>
-                <label className={styles.label} htmlFor="numero">Nº *</label>
-                <input id="numero" type="number" className={styles.input} placeholder="100" value={form.numero} onChange={set("numero")} required min={1} disabled={carregando} />
+                <input
+                  id="sobrenome"
+                  type="text"
+                  className={styles.input}
+                  placeholder="Silva"
+                  value={form.sobrenome}
+                  onChange={set("sobrenome")}
+                  required
+                  disabled={carregando}
+                  autoComplete="family-name"
+                />
               </div>
             </div>
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="email">E-mail *</label>
-              <input id="email" type="email" className={styles.input} placeholder="seu@email.com" value={form.email} onChange={set("email")} required disabled={carregando} autoComplete="email" />
+              <input
+                id="email"
+                type="email"
+                className={styles.input}
+                placeholder="seu@email.com"
+                value={form.email}
+                onChange={set("email")}
+                required
+                disabled={carregando}
+                autoComplete="email"
+              />
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label} htmlFor="password">Senha * <span style={{ fontWeight: 400, color: "var(--color-text-muted)", fontSize: "0.78rem" }}>(mínimo 6 caracteres)</span></label>
-              <input id="password" type="password" className={styles.input} placeholder="••••••••" value={form.password} onChange={set("password")} required minLength={6} disabled={carregando} autoComplete="new-password" />
+              <label className={styles.label} htmlFor="password">
+                Senha *{" "}
+                <span style={{ fontWeight: 400, color: "var(--color-text-muted)", fontSize: "0.78rem" }}>
+                  (mínimo 6 caracteres)
+                </span>
+              </label>
+              <input
+                id="password"
+                type="password"
+                className={styles.input}
+                placeholder="••••••••"
+                value={form.password}
+                onChange={set("password")}
+                required
+                minLength={6}
+                disabled={carregando}
+                autoComplete="new-password"
+              />
             </div>
 
             <button type="submit" className={styles.submitBtn} disabled={carregando}>

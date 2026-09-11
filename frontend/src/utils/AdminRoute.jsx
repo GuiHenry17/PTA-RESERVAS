@@ -1,9 +1,5 @@
 import { Navigate } from "react-router-dom";
 
-/**
- * Verifica se o usuário está autenticado E tem tipo="admin" no token.
- * Redireciona para /login se não autenticado, para / se não for admin.
- */
 export default function AdminRoute({ children }) {
   const token = localStorage.getItem("token");
 

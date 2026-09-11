@@ -38,7 +38,7 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         navigate("/");
       } else {
-        setErro(data.msg || "Erro ao fazer login.");
+        setErro(data.mensagem || "Erro ao fazer login.");
       }
     } catch {
       setErro("Não foi possível conectar ao servidor. Tente novamente.");

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
 import styles from "../styles/Admin.module.css";
 import Footer from "../components/Footer";
+import AdminNav from "../components/AdminNav";
 import API_URL from "../utils/api";
 
 const FILTROS = [
@@ -24,28 +24,36 @@ export default function AdminReservas() {
   const [reservas, setReservas] = useState([]);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todas");
+  const [filtroData, setFiltroData] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      setCarregando(true);
-      setErro("");
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_URL}/reservas/todas`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (data.erro) setErro(data.mensagem || "Erro ao carregar reservas.");
-        else setReservas(data.reservas || []);
-      } catch {
-        setErro("Erro de conexão com o servidor.");
-      } finally {
-        setCarregando(false);
+  const carregarReservas = useCallback(async (data) => {
+    setCarregando(true);
+    setErro("");
+    try {
+      const token = localStorage.getItem("token");
+
+      let url = `${API_URL}/reservas/todas`;
+      if (data) {
+        url = `${API_URL}/reservas/list?data=${encodeURIComponent(new Date(data).toISOString())}`;
       }
-    })();
+
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const json = await res.json();
+
+      if (json.erro) setErro(json.mensagem || "Erro ao carregar reservas.");
+      else setReservas(json.reservas || []);
+    } catch {
+      setErro("Erro de conexão com o servidor.");
+    } finally {
+      setCarregando(false);
+    }
   }, []);
+
+  useEffect(() => {
+    carregarReservas(filtroData);
+  }, [filtroData, carregarReservas]);
 
   const reservasFiltradas = reservas.filter((r) => {
     const matchStatus =
@@ -67,33 +75,7 @@ export default function AdminReservas() {
 
   return (
     <div className={styles.layout}>
-      <nav className={styles.topbar} aria-label="Navegação do painel admin">
-        <div className={styles.topbarBrand}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
-          </svg>
-          <span>Painel Admin</span>
-        </div>
-        <div className={styles.topbarNav}>
-          <Link to="/admin" className={styles.topbarLink}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
-            <span>Dashboard</span>
-          </Link>
-          <Link to="/admin/mesas" className={styles.topbarLink}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /></svg>
-            <span>Mesas</span>
-          </Link>
-          <Link to="/admin/reservas" className={`${styles.topbarLink} ${styles.topbarLinkAtivo}`}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-            <span>Reservas</span>
-          </Link>
-          <Link to="/" className={styles.topbarExit}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-            <span>Sair do painel</span>
-          </Link>
-        </div>
-      </nav>
+      <AdminNav />
 
       <main className={styles.main}>
         <div className={styles.pageHeader}>
@@ -108,7 +90,6 @@ export default function AdminReservas() {
               <span className={styles.sectionCount}>({reservasFiltradas.length} de {reservas.length})</span>
             </h2>
             <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", alignItems: "center" }}>
-              {/* Filtro status */}
               <div style={{ display: "flex", gap: "var(--space-1)" }}>
                 {FILTROS.map((f) => (
                   <button
@@ -131,7 +112,33 @@ export default function AdminReservas() {
                   </button>
                 ))}
               </div>
-              {/* Busca */}
+
+              <input
+                type="date"
+                className={styles.searchInput}
+                value={filtroData}
+                onChange={(e) => setFiltroData(e.target.value)}
+                aria-label="Filtrar por data"
+                title="Filtrar por data"
+              />
+
+              {filtroData && (
+                <button
+                  onClick={() => setFiltroData("")}
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: "var(--radius-full)",
+                    border: "1.5px solid var(--color-border)",
+                    background: "none",
+                    color: "var(--color-text-secondary)",
+                    fontSize: "var(--font-size-xs)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Limpar data
+                </button>
+              )}
+
               <input
                 className={styles.searchInput}
                 type="search"

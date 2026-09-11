@@ -22,6 +22,10 @@ export default function ReservarMesa() {
 
   useEffect(() => {
     carregarMesas();
+
+    const handleFocus = () => carregarMesas();
+    document.addEventListener("visibilitychange", handleFocus);
+    return () => document.removeEventListener("visibilitychange", handleFocus);
   }, []);
 
   async function carregarMesas() {

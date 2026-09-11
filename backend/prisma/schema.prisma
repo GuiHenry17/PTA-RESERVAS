@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,35 +11,34 @@ datasource db {
 }
 
 model Usuario {
-  id     Int    @id @default(autoincrement())
-  nome String
+  id        Int       @id @default(autoincrement())
+  nome      String
   sobrenome String
-  estado String
-  cidade String
-  bairro String
-  rua String
-  numero Int
-  email String @unique
-  password String
-  tipo String @default("cliente")
-  reservas Reserva[]
+  email     String    @unique
+  password  String
+  tipo      String    @default("cliente")
+  reservas  Reserva[]
 }
 
 model Mesa {
-  id     Int    @id @default(autoincrement())
-  codigo String @unique
+  id        Int       @id @default(autoincrement())
+  codigo    String    @unique
   n_lugares Int
-  status String  @default("disponível")
-  reservas Reserva[]
+  status    String    @default("disponível")
+  reservas  Reserva[]
 }
 
 model Reserva {
-  id     Int    @id @default(autoincrement())
-  usuario Usuario @relation(fields: [usuario_id], references: [id])
+  id         Int      @id @default(autoincrement())
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id])
   usuario_id Int
-  mesa Mesa @relation(fields: [mesa_id], references: [id])
-  mesa_id Int
-  data DateTime
-  n_pessoas Int
-  status Boolean @default(true) 
+  mesa       Mesa     @relation(fields: [mesa_id], references: [id])
+  mesa_id    Int
+  data       DateTime
+  n_pessoas  Int
+  status     Boolean  @default(true) // true = ativa, false = cancelada (soft-delete)
+
+  @@index([usuario_id])
+  @@index([mesa_id])
+  @@index([data])
 }
