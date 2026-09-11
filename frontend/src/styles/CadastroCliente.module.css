@@ -4,10 +4,7 @@
   display: flex;
   flex-direction: column;
 
-  background: url("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=80");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: radial-gradient(ellipse at 50% 30%, #3d1208 0%, #1a0a04 45%, #0d0503 100%);
 }
 
 .content {

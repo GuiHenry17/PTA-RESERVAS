@@ -1,206 +1,151 @@
 import { useState, useEffect } from "react";
-import styles from "../styles/CadastroCliente.module.css";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "../styles/FormPage.module.css";
 import Footer from "../components/Footer";
-import VoltarHome from "../components/Voltar";
 import API_URL from "../utils/api";
 
-export default function CadastroCliente() {
-  const [nome, setNome] = useState("");
-  const [sobrenome, setSobrenome] = useState("");
-  const [estado, setEstado] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [rua, setRua] = useState("");
-  const [numero, setNumero] = useState("");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [popup, setPopup] = useState(false);
-
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+export default function CadastroClientes() {
+  const [form, setForm] = useState({
+    nome: "", sobrenome: "", estado: "", cidade: "",
+    bairro: "", rua: "", numero: "", email: "", password: "",
+  });
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
+  const [jaLogado, setJaLogado] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      setPopup(true);
-
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 2000);
+    if (localStorage.getItem("token")) {
+      setJaLogado(true);
+      const t = setTimeout(() => navigate("/"), 2000);
+      return () => clearTimeout(t);
     }
-  }, []);
+  }, [navigate]);
+
+  const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   const handleCadastro = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setErro("");
+    setCarregando(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/cadastro`, {
+      // 1. Cadastro
+      const resReg = await fetch(`${API_URL}/auth/cadastro`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome,
-          sobrenome,
-          estado,
-          cidade,
-          bairro,
-          rua,
-          numero,
-          email,
-          password: senha,
-        }),
+        body: JSON.stringify({ ...form }),
       });
 
-      const data = await response.json();
+      const dataReg = await resReg.json();
 
-      if (!data.erro) {
-        setSuccess(data.mensagem || "Usuário cadastrado com sucesso!");
-      } else {
-        setError(data.mensagem || "Erro ao cadastrar usuário.");
+      if (dataReg.erro) {
+        setErro(dataReg.mensagem || "Erro ao cadastrar usuário.");
+        return;
       }
 
-      try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password: senha }),
-        });
-
-        const data = await response.json();
-
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          window.location.href = "/";
-        } else {
-          setError(data.msg || "Erro ao fazer login");
-        }
-      } catch (err) {
-        setError("Erro de conexão com o servidor");
+      // 2. Login automático — só ocorre após cadastro bem-sucedido
+      if (dataReg.token) {
+        localStorage.setItem("token", dataReg.token);
+        navigate("/");
       }
-    } catch (err) {
-      setError("Erro de conexão com o servidor.");
-      console.log(err);
+    } catch {
+      setErro("Não foi possível conectar ao servidor. Tente novamente.");
+    } finally {
+      setCarregando(false);
     }
   };
 
   return (
-    <div className={styles.container}>
-      {popup && (
-        <div className={styles["popup-overlay"]}>
-          <div className={styles["popup-center"]}>
+    <div className={styles.page}>
+      {jaLogado && (
+        <div className={styles.popupOverlay} role="alertdialog" aria-live="polite">
+          <div className={styles.popupCard}>
             <h3>Você já está logado!</h3>
-            <p>Redirecionando para a página inicial...</p>
+            <p>Redirecionando para a página inicial…</p>
           </div>
         </div>
       )}
-      <VoltarHome/>
+
+      <button className={styles.backBtn} onClick={() => navigate("/")} aria-label="Voltar para a página inicial">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Voltar
+      </button>
 
       <div className={styles.content}>
-        <form className={styles.form} onSubmit={handleCadastro}>
-          <h2 className={styles.title}>Cadastro de Usuário</h2>
+        <div className={styles.card}>
+          <h1 className={styles.cardTitle}>Criar conta</h1>
+          <p className={styles.cardSubtitle}>Preencha os dados para se cadastrar</p>
 
-          {error && <p className={styles.error}>{error}</p>}
-          {success && <p className={styles.success}>{success}</p>}
+          <form className={styles.form} onSubmit={handleCadastro} noValidate>
+            {erro && (
+              <div className={styles.alertErro} role="alert">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {erro}
+              </div>
+            )}
 
-          <div className={styles.group}>
-            <input
-              type="text"
-              placeholder="Nome"
-              name="Nome"
-              className={styles.input}
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Sobrenome"
-              name="sobrenome"
-              className={styles.input}
-              value={sobrenome}
-              onChange={(e) => setSobrenome(e.target.value)}
-              required
-            />
-          </div>
+            <div className={styles.fieldGroup}>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="nome">Nome *</label>
+                <input id="nome" type="text" className={styles.input} placeholder="João" value={form.nome} onChange={set("nome")} required disabled={carregando} autoComplete="given-name" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="sobrenome">Sobrenome *</label>
+                <input id="sobrenome" type="text" className={styles.input} placeholder="Silva" value={form.sobrenome} onChange={set("sobrenome")} required disabled={carregando} autoComplete="family-name" />
+              </div>
+            </div>
 
-          <div className={styles.group}>
-            <input
-              type="text"
-              placeholder="Estado"
-              name="estado"
-              className={styles.input}
-              value={estado}
-              onChange={(e) => setEstado(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Cidade"
-              name="cidade"
-              className={styles.input}
-              value={cidade}
-              onChange={(e) => setCidade(e.target.value)}
-              required
-            />
-          </div>
+            <div className={styles.fieldGroup}>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="estado">Estado *</label>
+                <input id="estado" type="text" className={styles.input} placeholder="SP" value={form.estado} onChange={set("estado")} required disabled={carregando} maxLength={2} autoComplete="address-level1" />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="cidade">Cidade *</label>
+                <input id="cidade" type="text" className={styles.input} placeholder="São Paulo" value={form.cidade} onChange={set("cidade")} required disabled={carregando} autoComplete="address-level2" />
+              </div>
+            </div>
 
-          <input
-            type="text"
-            placeholder="Bairro"
-            name="bairro"
-            className={styles.input}
-            value={bairro}
-            onChange={(e) => setBairro(e.target.value)}
-            required
-          />
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="bairro">Bairro *</label>
+              <input id="bairro" type="text" className={styles.input} placeholder="Centro" value={form.bairro} onChange={set("bairro")} required disabled={carregando} />
+            </div>
 
-          <div className={styles.group}>
-            <input
-              type="text"
-              placeholder="Rua"
-              name="rua"
-              className={styles.input}
-              value={rua}
-              onChange={(e) => setRua(e.target.value)}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Nº"
-              name="numero"
-              className={styles.input}
-              value={numero}
-              onChange={(e) => setNumero(e.target.value)}
-              required
-            />
-          </div>
+            <div className={styles.fieldGroup}>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="rua">Rua *</label>
+                <input id="rua" type="text" className={styles.input} placeholder="Rua das Flores" value={form.rua} onChange={set("rua")} required disabled={carregando} autoComplete="street-address" />
+              </div>
+              <div className={styles.field} style={{ maxWidth: "90px" }}>
+                <label className={styles.label} htmlFor="numero">Nº *</label>
+                <input id="numero" type="number" className={styles.input} placeholder="100" value={form.numero} onChange={set("numero")} required min={1} disabled={carregando} />
+              </div>
+            </div>
 
-          <input
-            type="email"
-            placeholder="E-mail"
-            name="email"
-            className={styles.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="email">E-mail *</label>
+              <input id="email" type="email" className={styles.input} placeholder="seu@email.com" value={form.email} onChange={set("email")} required disabled={carregando} autoComplete="email" />
+            </div>
 
-          <input
-            type="password"
-            placeholder="Senha"
-            name="senha"
-            className={styles.input}
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            required
-          />
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="password">Senha * <span style={{ fontWeight: 400, color: "var(--color-text-muted)", fontSize: "0.78rem" }}>(mínimo 6 caracteres)</span></label>
+              <input id="password" type="password" className={styles.input} placeholder="••••••••" value={form.password} onChange={set("password")} required minLength={6} disabled={carregando} autoComplete="new-password" />
+            </div>
 
-          <button className={styles.button} type="submit">
-            Cadastrar
-          </button>
-        </form>
+            <button type="submit" className={styles.submitBtn} disabled={carregando}>
+              {carregando ? "Criando conta…" : "Criar conta"}
+            </button>
+          </form>
+
+          <p className={styles.link}>
+            Já tem conta? <Link to="/login">Entrar</Link>
+          </p>
+        </div>
       </div>
 
       <Footer />

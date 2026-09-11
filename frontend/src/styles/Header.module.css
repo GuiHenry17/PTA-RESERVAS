@@ -1,135 +1,246 @@
-* {
-  margin: 0;
-  padding: 0;
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
 }
 
-.header {
-  width: 100%;
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-8);
+  height: 64px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
-  background: #fff7ef;
-  border-bottom: 3px solid #3a3a3a;
+  justify-content: space-between;
+  gap: var(--space-6);
 }
 
 .logo {
-  font-size: 1.7rem;
-  font-weight: 700;
-  color: #652b1c;
-  line-height: 1.1;
-}
-
-.menu {
   display: flex;
-  gap: 25px;
-}
-
-.menu a {
+  flex-direction: column;
+  line-height: 1.15;
+  flex-shrink: 0;
   text-decoration: none;
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #5a2a1c;
 }
 
-.menu a:hover {
-  color: #000;
+.logoSub {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.reservasButton {
-  display: flex;
-  background: #7a3b19;
-  color: white;
-  padding: 15px 25px;
-  border-radius: 5px;
-  font-weight: 700;
-  text-align: center;
-  text-decoration: none;
-  font-size: 1.1rem;
+.logoName {
+  font-size: var(--font-size-md);
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.01em;
 }
 
-.reservasButton:hover {
-  background: #5e2d14;
-}
-
-.adminButton {
+.nav {
   display: flex;
   align-items: center;
-  background: #2c3e50;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 5px;
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 0.95rem;
+  gap: var(--space-1);
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: background var(--transition-fast), color var(--transition-fast);
   white-space: nowrap;
+  text-decoration: none;
 }
 
-.adminButton:hover {
-  background: #1a252f;
-}
-
-@media (max-width: 916px) {
-  .header {
-    padding: 15px 20px;
-  }
-
-  .logo {
-    font-size: 1.3rem;
-  }
-
-  .menu {
-    gap: 15px;
-  }
-
-  .menu a {
-    margin: 5px;
-    font-size: 1rem;
-  }
-
-  .reservasButton {
-    padding: 10px 15px;
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 540px) {
-  .header {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .menu {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px 20px;
-  }
-
-  .menu a {
-    font-size: 0.9rem;
-  }
-
-  .reservasButton {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-  }
+.navLink:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.adminBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.adminBtn:hover {
+  background: var(--color-surface-3);
+  color: var(--color-primary);
+}
+
+.reservasBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  text-decoration: none;
+}
+
+.reservasBtn:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
 }
 
 .logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
   background: none;
-  border: none;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #5a2a1c;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
   cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
 .logoutBtn:hover {
-  color: #000;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+}
+
+/* Botão hamburger — visivel apenas em mobile */
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.hamburger:hover { background: var(--color-surface-2); }
+
+/* Botão entrar mobile (visivel apenas mobile) */
+.loginBtnMobile { display: none; }
+
+/* Drawer mobile */
+.mobileMenu {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  z-index: 99;
+  animation: slideDown 0.18s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3) var(--space-4);
+  gap: var(--space-1);
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  width: 100%;
+  text-align: left;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.mobileNavLink:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.mobileNavLinkPrimary {
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.mobileNavLinkPrimary:hover {
+  background: var(--color-primary-hover);
+  color: #fff;
+}
+
+.mobileNavLinkLogout {
+  color: var(--color-danger);
+}
+
+.mobileNavLinkLogout:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* ── Responsivo ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .inner {
+    padding: 0 var(--space-4);
+    height: 56px;
+    gap: var(--space-3);
+  }
+
+  .nav { display: none; }
+
+  .adminBtn { display: none; }
+  .reservasBtn { display: none; }
+  .logoutBtn { display: none; }
+
+  .hamburger { display: flex; }
+
+  .mobileMenu { top: 56px; }
+}
+
+@media (max-width: 480px) {
+  .logoSub { display: none; }
 }

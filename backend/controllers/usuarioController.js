@@ -1,178 +1,160 @@
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const client = require("../prismaClient");
 
-const { PrismaClient } = require("@prisma/client");
-const client = new PrismaClient();
+// Regex simples de validação de e-mail
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 class usuarioController {
 
-    static async cadastrar(req, res) {
+  static async cadastrar(req, res) {
     const { nome, sobrenome, estado, cidade, bairro, rua, numero, email, password, tipo } = req.body;
 
     if (!nome || !sobrenome || !estado || !cidade || !bairro || !rua || !numero || !email || !password) {
-        return res.json({
-            mensagem: "Todos os campos são obrigatórios!",
-            erro: true
-        });
+      return res.status(400).json({
+        mensagem: "Todos os campos são obrigatórios!",
+        erro: true,
+      });
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({
+        mensagem: "Endereço de e-mail inválido.",
+        erro: true,
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        mensagem: "A senha deve ter pelo menos 6 caracteres.",
+        erro: true,
+      });
+    }
+
+    const numeroInt = parseInt(numero);
+    if (isNaN(numeroInt) || numeroInt < 1) {
+      return res.status(400).json({
+        mensagem: "Número do endereço inválido.",
+        erro: true,
+      });
     }
 
     const tiposValidos = ["cliente", "admin"];
     if (tipo && !tiposValidos.includes(tipo)) {
-        return res.json({
-            mensagem: "Tipo de usuário inválido! Somente 'cliente' ou 'admin'.",
-            erro: true
-        });
+      return res.status(400).json({
+        mensagem: "Tipo de usuário inválido! Somente 'cliente' ou 'admin'.",
+        erro: true,
+      });
     }
 
-    const salt = bcrypt.genSaltSync(8);
+    const salt = bcrypt.genSaltSync(10);
     const hashpassword = bcrypt.hashSync(password, salt);
 
     try {
-        const usuario = await client.usuario.create({
-            data: {
-                nome,
-                sobrenome,
-                estado,
-                cidade,
-                bairro,
-                rua,
-                numero: Number(numero),
-                email,
-                password: hashpassword,
-                tipo: tipo || "cliente",
-            },
-        });
+      const usuario = await client.usuario.create({
+        data: {
+          nome: nome.trim(),
+          sobrenome: sobrenome.trim(),
+          estado: estado.trim(),
+          cidade: cidade.trim(),
+          bairro: bairro.trim(),
+          rua: rua.trim(),
+          numero: numeroInt,
+          email: email.toLowerCase().trim(),
+          password: hashpassword,
+          tipo: tipo || "cliente",
+        },
+      });
 
-        const token = jwt.sign(
-            { id: usuario.id, tipo: usuario.tipo },
-            process.env.SENHA_SERVIDOR,
-            { expiresIn: "2h" }
-        );
+      const token = jwt.sign(
+        { id: usuario.id, tipo: usuario.tipo },
+        process.env.SENHA_SERVIDOR,
+        { expiresIn: "2h" }
+      );
 
-        res.json({
-            mensagem: "Usuário cadastrado com sucesso!",
-            erro: false,
-            token: token
+      return res.status(201).json({
+        mensagem: "Usuário cadastrado com sucesso!",
+        erro: false,
+        token,
+      });
+    } catch (err) {
+      if (err.code === "P2002") {
+        return res.status(409).json({
+          mensagem: "Este e-mail já está cadastrado.",
+          erro: true,
         });
+      }
+      console.error("Erro ao cadastrar usuário:", err);
+      return res.status(500).json({
+        mensagem: "Falha ao criar usuário.",
+        erro: true,
+      });
     }
-    catch (err) {
-        console.log(err);
-        return res.json({
-            mensagem: "Falha ao criar usuário!",
-            erro: true
-        });
-    }
-}
+  }
 
+  static async login(req, res) {
+    const { email, password } = req.body;
 
-    static async login(req, res) {
-        const { email, password } = req.body;
-
-        const usuario = await client.usuario.findUnique({
-            where: {
-                email: email,
-            },
-        });
-
-        if (!usuario) {
-            return res.json({
-                msg: "Usuário não encontrado!",
-            });
-        }
-
-        const passwordCorreta = bcrypt.compareSync(password, usuario.password);
-
-        if (!passwordCorreta) {
-            return res.json({
-                msg: "Senha incorreta!",
-            });
-        }
-
-        const token = jwt.sign(
-            { id: usuario.id, tipo: usuario.tipo },
-            process.env.SENHA_SERVIDOR,
-            { expiresIn: "2h" }
-        );
-
-        res.json({
-            msg: "Autenticado com sucesso!",
-            token: token,
-        });
+    if (!email || !password) {
+      return res.status(400).json({
+        msg: "E-mail e senha são obrigatórios.",
+      });
     }
 
-    static async verificarAutenticacao(req, res, next) {
-        const authHeader = req.headers["authorization"]
-        if (authHeader) {
-            const token = authHeader.split(" ")[1];
+    try {
+      const usuario = await client.usuario.findUnique({
+        where: { email: email.toLowerCase().trim() },
+      });
 
-            jwt.verify(token, process.env.SENHA_SERVIDOR, (err, payload) => {
-                if (err) {
-                    return res.json({
-                        msg: "Token invalido!"
-                    })
-                }
-
-                req.usuarioId = payload.id;
-                next();
-            })
-        } else {
-            return res.json({
-                msg: "Token não encontrado!"
-            })
-        }
-    }
-
-    static async verificaAdmin(req, res, next) {
-        if (req.usuarioId == null) {
-            return res.status(401).json({
-                msg: "Você não está autenticado"
-            });
-        }
-
-        const usuario = await client.usuario.findUnique({
-            where: { id: req.usuarioId },
+      if (!usuario) {
+        return res.status(401).json({
+          msg: "Usuário não encontrado!",
         });
+      }
 
-        if (!usuario) {
-            return res.status(401).json({
-                msg: "Usuário não encontrado"
-            });
-        }
+      const passwordCorreta = bcrypt.compareSync(password, usuario.password);
 
-        if (usuario.tipo === "cliente") {
-            return res.status(403).json({
-                msg: "Acesso negado, você não é admin",
-            });
-        }
+      if (!passwordCorreta) {
+        return res.status(401).json({
+          msg: "Senha incorreta!",
+        });
+      }
 
-        next();
+      const token = jwt.sign(
+        { id: usuario.id, tipo: usuario.tipo },
+        process.env.SENHA_SERVIDOR,
+        { expiresIn: "2h" }
+      );
+
+      return res.json({
+        msg: "Autenticado com sucesso!",
+        token,
+      });
+    } catch (err) {
+      console.error("Erro ao fazer login:", err);
+      return res.status(500).json({
+        msg: "Falha ao realizar login.",
+      });
     }
+  }
 
-    static async getUsuarioLogado(req, res) {
-        const authHeader = req.headers["authorization"];
-        if (!authHeader) {
-            return res.status(401).json({ erro: true, mensagem: "Token não fornecido" });
-        }
+  static async getUsuarioLogado(req, res) {
+    try {
+      const usuario = await client.usuario.findUnique({
+        where: { id: req.usuarioId },
+        select: { id: true, nome: true, sobrenome: true, email: true, tipo: true },
+      });
 
-        const token = authHeader.split(" ")[1];
+      if (!usuario) {
+        return res.status(404).json({ erro: true, mensagem: "Usuário não encontrado." });
+      }
 
-        try {
-            const decoded = jwt.verify(token, process.env.SENHA_SERVIDOR);
-            const usuario = await client.usuario.findUnique({
-                where: { id: decoded.id },
-                select: { id: true, nome: true, email: true, tipo: true },
-            });
-
-            if (!usuario) {
-                return res.status(404).json({ erro: true, mensagem: "Usuário não encontrado" });
-            }
-
-            res.json({ erro: false, usuario });
-        } catch (err) {
-            return res.status(401).json({ erro: true, mensagem: "Token inválido ou expirado" });
-        }
+      return res.json({ erro: false, usuario });
+    } catch (err) {
+      console.error("Erro ao buscar usuário logado:", err);
+      return res.status(500).json({ erro: true, mensagem: "Falha ao buscar dados do usuário." });
     }
-
+  }
 }
 
 module.exports = usuarioController;

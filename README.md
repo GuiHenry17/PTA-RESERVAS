@@ -160,7 +160,14 @@ cd backend
 npm test
 ```
 
-12 testes cobrindo cadastro de usuário (campos obrigatórios, validação de tipo, senha) e autenticação (login com sucesso, senha incorreta, usuário não encontrado).
+69 testes cobrindo:
+- Cadastro de usuário (campos obrigatórios, validação de tipo, senha, e-mail)
+- Autenticação (login, senha incorreta, usuário não encontrado, token inválido)
+- CRUD de mesas (criação, listagem, autorização, duplicidade)
+- Reservas (criação, listagem própria, rejeição de mesa indisponível, data no passado)
+- **BUG CRÍTICO — liberação de mesa**: 8 testes provam que a mesa continua existindo, o usuário continua existindo, a reserva fica com `status=false` (cancelada, não deletada), e que uma nova reserva pode ser feita na mesa liberada
+- Cancelamento de reserva (soft-cancel, FK preservada, sem acesso cruzado entre usuários)
+- Casos de borda: sem autenticação, sem permissão admin, entidade inexistente, estado duplicado
 
 ---
 

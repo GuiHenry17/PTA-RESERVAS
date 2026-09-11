@@ -1,73 +1,129 @@
-const { PrismaClient } = require("@prisma/client");
-const client = new PrismaClient();
+const client = require("../prismaClient");
 
 class reservaController {
+
   static async reservar(req, res) {
     const { data, n_pessoas, mesaId } = req.body;
     const usuarioId = req.usuarioId;
 
     if (!data || !n_pessoas || !mesaId) {
-      return res.json({
-        mensagem: "Todos os campos são obrigatórios!",
+      return res.status(400).json({
+        mensagem: "Data, número de pessoas e ID da mesa são obrigatórios.",
         erro: true,
       });
     }
 
+    const pessoas = parseInt(n_pessoas);
+    if (isNaN(pessoas) || pessoas < 1) {
+      return res.status(400).json({
+        mensagem: "Número de pessoas deve ser um inteiro positivo.",
+        erro: true,
+      });
+    }
+
+    const dataReserva = new Date(data);
+    if (isNaN(dataReserva.getTime())) {
+      return res.status(400).json({
+        mensagem: "Data inválida.",
+        erro: true,
+      });
+    }
+
+    if (dataReserva < new Date()) {
+      return res.status(400).json({
+        mensagem: "Não é possível reservar para uma data no passado.",
+        erro: true,
+      });
+    }
+
+    const mesaIdInt = parseInt(mesaId);
+    if (isNaN(mesaIdInt)) {
+      return res.status(400).json({ mensagem: "ID de mesa inválido.", erro: true });
+    }
+
     try {
-
-      const mesa = await client.mesa.findUnique({
-        where: { id: parseInt(mesaId) },
-      });
-
-      if (!mesa) {
-        return res.json({ mensagem: "Mesa não encontrada!", erro: true });
-      }
-
-      if (mesa.status === "reservada") {
-        return res.json({
-          mensagem: "A mesa já está ocupada e não pode ser reservada!",
-          erro: true,
+      const reserva = await client.$transaction(async (tx) => {
+        // Busca a mesa com lock (select for update via findUnique dentro da tx)
+        const mesa = await tx.mesa.findUnique({
+          where: { id: mesaIdInt },
         });
-      }
 
-      const reservaExistente = await client.reserva.findFirst({
-        where: {
-          mesa_id: parseInt(mesaId),
-          status: true,
-          data: new Date(data),
-        },
-      });
+        if (!mesa) {
+          const err = new Error("Mesa não encontrada.");
+          err.statusCode = 404;
+          throw err;
+        }
 
-      if (reservaExistente) {
-        return res.json({
-          mensagem: "Essa mesa já está reservada para essa data!",
-          erro: true,
+        if (mesa.status === "inativa") {
+          const err = new Error("Esta mesa está inativa e não pode ser reservada.");
+          err.statusCode = 400;
+          throw err;
+        }
+
+        if (mesa.status === "reservada") {
+          const err = new Error("A mesa já está reservada e não pode ser reservada novamente.");
+          err.statusCode = 409;
+          throw err;
+        }
+
+        if (pessoas > mesa.n_lugares) {
+          const err = new Error(`A mesa comporta no máximo ${mesa.n_lugares} pessoa(s).`);
+          err.statusCode = 400;
+          throw err;
+        }
+
+        // Verificação dupla: reserva ativa na mesma data (proteção extra contra race condition)
+        const reservaExistente = await tx.reserva.findFirst({
+          where: {
+            mesa_id: mesaIdInt,
+            status: true,
+            data: dataReserva,
+          },
         });
-      }
 
-      const [reserva] = await client.$transaction([
-        client.reserva.create({
+        if (reservaExistente) {
+          const err = new Error("Essa mesa já está reservada para essa data e horário.");
+          err.statusCode = 409;
+          throw err;
+        }
+
+        const novaReserva = await tx.reserva.create({
           data: {
-            data: new Date(data),
-            n_pessoas: parseInt(n_pessoas),
-            mesa_id: parseInt(mesaId),
+            data: dataReserva,
+            n_pessoas: pessoas,
+            mesa_id: mesaIdInt,
             usuario_id: usuarioId,
           },
-        }),
-        client.mesa.update({
-          where: { id: parseInt(mesaId) },
-          data: { status: "reservada" },
-        }),
-      ]);
+          include: {
+            mesa: { select: { id: true, codigo: true, n_lugares: true } },
+          },
+        });
 
-      return res.json({
+        await tx.mesa.update({
+          where: { id: mesaIdInt },
+          data: { status: "reservada" },
+        });
+
+        return novaReserva;
+      });
+
+      return res.status(201).json({
         mensagem: "Reserva criada com sucesso!",
         erro: false,
         reserva,
       });
     } catch (err) {
+      if (err.statusCode) {
+        return res.status(err.statusCode).json({
+          mensagem: err.message,
+          erro: true,
+        });
+      }
       console.error("Erro ao criar reserva:", err);
-      return res.json({ mensagem: "Falha ao criar reserva!", erro: true });
+      return res.status(500).json({
+        mensagem: "Falha ao criar reserva.",
+        erro: true,
+      });
     }
   }
 
@@ -78,8 +134,9 @@ class reservaController {
       const reservas = await client.reserva.findMany({
         where: { usuario_id: usuarioId },
         include: {
-          mesa: true,
+          mesa: { select: { id: true, codigo: true, n_lugares: true } },
         },
+        orderBy: { data: "desc" },
       });
 
       return res.json({
@@ -89,50 +146,72 @@ class reservaController {
       });
     } catch (err) {
       console.error("Erro ao buscar reservas:", err);
-      return res.json({
-        mensagem: "Falha ao buscar reservas!",
+      return res.status(500).json({
+        mensagem: "Falha ao buscar reservas.",
         erro: true,
       });
     }
   }
 
+  /**
+   * Cancela uma reserva de forma atômica:
+   *   1. Verifica existência e propriedade da reserva
+   *   2. Verifica se já está cancelada
+   *   3. Marca reserva como cancelada (status = false) — PRESERVA HISTÓRICO
+   *   4. Libera a mesa (status = "disponível")
+   *   Tudo dentro de uma transação.
+   */
   static async cancelar(req, res) {
     const { reservaId } = req.body;
     const usuarioId = req.usuarioId;
 
     if (!reservaId) {
-      return res.json({
-        mensagem: "O ID da reserva é obrigatório!",
+      return res.status(400).json({
+        mensagem: "O ID da reserva é obrigatório.",
         erro: true,
       });
     }
 
+    const reservaIdInt = parseInt(reservaId);
+    if (isNaN(reservaIdInt)) {
+      return res.status(400).json({ mensagem: "ID de reserva inválido.", erro: true });
+    }
+
     try {
-      const reserva = await client.reserva.findUnique({
-        where: { id: parseInt(reservaId) },
-      });
-
-      if (!reserva) {
-        return res.json({
-          mensagem: "Reserva não encontrada!",
-          erro: true,
+      await client.$transaction(async (tx) => {
+        const reserva = await tx.reserva.findUnique({
+          where: { id: reservaIdInt },
         });
-      }
 
-      if (reserva.usuario_id !== usuarioId) {
-        return res.json({
-          mensagem: "Você não pode cancelar reservas de outro usuário!",
-          erro: true,
+        if (!reserva) {
+          const err = new Error("Reserva não encontrada.");
+          err.statusCode = 404;
+          throw err;
+        }
+
+        if (reserva.usuario_id !== usuarioId) {
+          const err = new Error("Você não tem permissão para cancelar a reserva de outro usuário.");
+          err.statusCode = 403;
+          throw err;
+        }
+
+        if (!reserva.status) {
+          const err = new Error("Esta reserva já foi cancelada.");
+          err.statusCode = 409;
+          throw err;
+        }
+
+        // Soft-cancel: preserva o histórico
+        await tx.reserva.update({
+          where: { id: reservaIdInt },
+          data: { status: false },
         });
-      }
 
-      await client.reserva.delete({
-        where: { id: parseInt(reservaId) },
-      });
-
-      await client.mesa.update({
-        where: { id: reserva.mesa_id },
-        data: { status: "disponível" },
+        // Libera a mesa apenas se ela ainda estiver marcada como reservada
+        await tx.mesa.updateMany({
+          where: { id: reserva.mesa_id, status: "reservada" },
+          data: { status: "disponível" },
+        });
       });
 
       return res.json({
@@ -140,9 +219,15 @@ class reservaController {
         erro: false,
       });
     } catch (err) {
+      if (err.statusCode) {
+        return res.status(err.statusCode).json({
+          mensagem: err.message,
+          erro: true,
+        });
+      }
       console.error("Erro ao cancelar reserva:", err);
-      return res.json({
-        mensagem: "Falha ao cancelar reserva!",
+      return res.status(500).json({
+        mensagem: "Falha ao cancelar reserva.",
         erro: true,
       });
     }
@@ -152,7 +237,7 @@ class reservaController {
     try {
       const reservas = await client.reserva.findMany({
         include: {
-          mesa: true,
+          mesa: { select: { id: true, codigo: true, n_lugares: true, status: true } },
           usuario: {
             select: { id: true, nome: true, sobrenome: true, email: true },
           },
@@ -167,8 +252,8 @@ class reservaController {
       });
     } catch (err) {
       console.error("Erro ao buscar todas as reservas:", err);
-      return res.json({
-        mensagem: "Falha ao buscar reservas!",
+      return res.status(500).json({
+        mensagem: "Falha ao buscar reservas.",
         erro: true,
       });
     }
@@ -178,8 +263,16 @@ class reservaController {
     const { data } = req.query;
 
     if (!data) {
-      return res.json({
-        mensagem: "A data é obrigatória!",
+      return res.status(400).json({
+        mensagem: "A data é obrigatória.",
+        erro: true,
+      });
+    }
+
+    const dataFiltro = new Date(data);
+    if (isNaN(dataFiltro.getTime())) {
+      return res.status(400).json({
+        mensagem: "Formato de data inválido.",
         erro: true,
       });
     }
@@ -187,14 +280,16 @@ class reservaController {
     try {
       const reservas = await client.reserva.findMany({
         where: {
-          data: {
-            equals: new Date(data),
-          },
+          data: { equals: dataFiltro },
+          status: true,
         },
         include: {
-          mesa: true,
-          usuario: true,
+          mesa: { select: { id: true, codigo: true, n_lugares: true } },
+          usuario: {
+            select: { id: true, nome: true, sobrenome: true, email: true },
+          },
         },
+        orderBy: { data: "asc" },
       });
 
       return res.json({
@@ -203,9 +298,9 @@ class reservaController {
         reservas,
       });
     } catch (err) {
-      console.error("Erro ao buscar reservas:", err);
-      return res.json({
-        mensagem: "Falha ao buscar reservas!",
+      console.error("Erro ao buscar reservas por data:", err);
+      return res.status(500).json({
+        mensagem: "Falha ao buscar reservas.",
         erro: true,
       });
     }

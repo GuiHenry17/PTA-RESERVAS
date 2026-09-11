@@ -1,101 +1,131 @@
-.tela {
-  position: relative;
+.page {
   min-height: 100vh;
-  width: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  background: var(--color-bg);
 }
 
-.tela::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("https://m.media-amazon.com/images/I/813M9p5FvEL.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(2px);
-  transform: scale(1.05);
-  z-index: -1;
+.main {
+  flex: 1;
+}
+
+.hero {
+  background: var(--color-primary);
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-3);
+}
+
+.heroDesc {
+  font-size: var(--font-size-base);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
 }
 
 .container {
-  flex: 1;
-  max-width: 1100px;
-  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 70px 20px 40px;
+  padding: var(--space-10) var(--space-8) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
 }
 
-.titulo {
-  text-align: center;
-  color: #fff;
-  font-size: 32px;
-  margin-bottom: 30px;
-  font-weight: bold;
+.categoria {}
+
+.categoriaHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-primary-light);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
+.categoriaIcone {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
 }
 
-.card {
-  background: white;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+.categoriaNome {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
-.card:hover {
-  transform: translateY(-5px);
+.pratos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
-.img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
+.prato {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
-.nome {
-  font-size: 20px;
-  color: #5a3825;
-  margin: 12px;
-  font-weight: bold;
+.prato:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary-muted);
 }
 
-.preco {
-  font-size: 18px;
-  color: #8c4626;
-  margin: 0 12px 15px;
-  font-weight: 600;
+.pratoInfo {
+  flex: 1;
+  min-width: 0;
 }
 
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.pratoNome {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
 }
 
-@media (max-width: 500px) {
-  .titulo {
-    text-align: center;
-    font-size: 26px;
-  }
+.pratoDesc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
 
-  .grid {
-    grid-template-columns: 1fr;
-  }
+.pratoPreco {
+  font-size: var(--font-size-base);
+  font-weight: 800;
+  color: var(--color-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
-  .card {
-    width: 90%;
-    margin: 0 auto;
-  }
-
-  .img {
-    height: 200px;
-  }
+@media (max-width: 640px) {
+  .container { padding: var(--space-6) var(--space-4); gap: var(--space-8); }
+  .hero { padding: var(--space-8) var(--space-4); }
+  .heroTitle { font-size: var(--font-size-2xl); }
+  .prato { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .pratoPreco { align-self: flex-end; font-size: var(--font-size-lg); }
 }
