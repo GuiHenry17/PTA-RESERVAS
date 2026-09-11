@@ -59,11 +59,8 @@ export default function AdminReservas() {
     if (!matchStatus) return false;
 
     if (filtroData) {
-      const dataReserva = new Date(r.data);
-      const ano = dataReserva.getFullYear();
-      const mes = String(dataReserva.getMonth() + 1).padStart(2, "0");
-      const dia = String(dataReserva.getDate()).padStart(2, "0");
-      if (`${ano}-${mes}-${dia}` !== filtroData) return false;
+      const dataLocal = new Date(r.data).toLocaleDateString("en-CA");
+      if (dataLocal !== filtroData) return false;
     }
 
     if (!busca.trim()) return true;
