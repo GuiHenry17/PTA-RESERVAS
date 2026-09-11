@@ -56,7 +56,7 @@
 }
 
 .filterBtnActive {
-  background: var(--color-primary);
+  background: var(--color-primary-muted);
   border-color: var(--color-primary);
   color: #fff;
 }
