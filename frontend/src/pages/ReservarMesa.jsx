@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -14,7 +14,19 @@ export default function ReservarMesa() {
   const [sucesso, setSucesso] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const agora = new Date();
   agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
@@ -146,21 +158,64 @@ export default function ReservarMesa() {
 
                 <div className={styles.field}>
                   <label className={styles.label} htmlFor="mesa">Mesa disponível</label>
-                  <select
-                    id="mesa"
-                    className={styles.select}
-                    value={mesaId}
-                    onChange={(e) => { setMesaId(e.target.value); setNPessoas(""); }}
-                    required
-                    disabled={enviando}
+                  <div
+                    ref={dropdownRef}
+                    className={`${styles.dropdown} ${dropdownOpen ? styles.dropdownOpen : ""} ${enviando ? styles.dropdownDisabled : ""}`}
                   >
-                    <option value="">Selecione uma mesa…</option>
-                    {mesas.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        Mesa {m.codigo} — {m.n_lugares} {m.n_lugares === 1 ? "lugar" : "lugares"}
-                      </option>
-                    ))}
-                  </select>
+                    <button
+                      id="mesa"
+                      type="button"
+                      className={styles.dropdownTrigger}
+                      onClick={() => !enviando && setDropdownOpen((o) => !o)}
+                      aria-haspopup="listbox"
+                      aria-expanded={dropdownOpen}
+                      disabled={enviando}
+                    >
+                      <span className={mesaId ? styles.dropdownValueSelected : styles.dropdownPlaceholder}>
+                        {mesaId
+                          ? (() => { const m = mesas.find((m) => m.id === Number(mesaId)); return m ? `Mesa ${m.codigo} — ${m.n_lugares} ${m.n_lugares === 1 ? "lugar" : "lugares"}` : "Selecione uma mesa…"; })()
+                          : "Selecione uma mesa…"}
+                      </span>
+                      <svg
+                        className={styles.dropdownChevron}
+                        width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" strokeWidth="2.5"
+                        aria-hidden="true"
+                      >
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+
+                    {dropdownOpen && (
+                      <ul className={styles.dropdownList} role="listbox" aria-label="Mesas disponíveis">
+                        {mesas.map((m) => (
+                          <li
+                            key={m.id}
+                            role="option"
+                            aria-selected={mesaId === String(m.id)}
+                            className={`${styles.dropdownOption} ${mesaId === String(m.id) ? styles.dropdownOptionSelected : ""}`}
+                            onClick={() => {
+                              setMesaId(String(m.id));
+                              setNPessoas("");
+                              setDropdownOpen(false);
+                            }}
+                          >
+                            <span className={styles.dropdownOptionLabel}>
+                              Mesa {m.codigo}
+                            </span>
+                            <span className={styles.dropdownOptionMeta}>
+                              {m.n_lugares} {m.n_lugares === 1 ? "lugar" : "lugares"}
+                            </span>
+                            {mesaId === String(m.id) && (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={styles.dropdownOptionCheck} aria-hidden="true">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                   {mesaSelecionada && (
                     <div className={styles.mesaInfo}>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
