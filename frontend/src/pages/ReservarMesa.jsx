@@ -76,6 +76,19 @@ export default function ReservarMesa() {
       return;
     }
 
+    const dataEscolhida = new Date(data);
+    const agora = new Date();
+    if (dataEscolhida <= agora) {
+      setErro("A data da reserva deve ser no futuro.");
+      return;
+    }
+    const limite = new Date();
+    limite.setFullYear(limite.getFullYear() + 1);
+    if (dataEscolhida > limite) {
+      setErro("Não é possível reservar com mais de 1 ano de antecedência.");
+      return;
+    }
+
     setEnviando(true);
     try {
       const res = await fetch(`${API_URL}/reservas/novo`, {

@@ -22,6 +22,12 @@ async function reservar(req, res) {
     return res.status(400).json({ mensagem: "Não é possível reservar para uma data no passado.", erro: true });
   }
 
+  const umAnoDepois = new Date();
+  umAnoDepois.setFullYear(umAnoDepois.getFullYear() + 1);
+  if (dataReserva > umAnoDepois) {
+    return res.status(400).json({ mensagem: "Não é possível reservar com mais de 1 ano de antecedência.", erro: true });
+  }
+
   const mesaIdInt = parseInt(mesaId);
   if (isNaN(mesaIdInt)) {
     return res.status(400).json({ mensagem: "ID de mesa inválido.", erro: true });
