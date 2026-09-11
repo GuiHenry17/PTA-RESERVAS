@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import styles from "../styles/Header.module.css";
 
 function getPayload() {
@@ -8,9 +8,13 @@ function getPayload() {
     if (!token) return null;
     const payload = JSON.parse(atob(token.split(".")[1]));
     const agora = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < agora) return null;
+    if (payload.exp && payload.exp < agora) {
+      localStorage.removeItem("token");
+      return null;
+    }
     return payload;
   } catch {
+    localStorage.removeItem("token");
     return null;
   }
 }
@@ -25,9 +29,22 @@ function getIniciais(nome) {
 export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false);
   const [dropdownAberto, setDropdownAberto] = useState(false);
+  const [payload, setPayload] = useState(getPayload);
   const dropdownRef = useRef(null);
+  const location = useLocation();
 
-  const payload = getPayload();
+  useEffect(() => {
+    setPayload(getPayload());
+  }, [location]);
+
+  useEffect(() => {
+    function sincronizar() {
+      setPayload(getPayload());
+    }
+    window.addEventListener("storage", sincronizar);
+    return () => window.removeEventListener("storage", sincronizar);
+  }, []);
+
   const isLogado = !!payload;
   const isAdmin = payload?.tipo === "admin";
   const nome = payload?.nome ?? "";
@@ -36,6 +53,7 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setPayload(null);
     window.location.href = "/";
   };
 
