@@ -20,9 +20,12 @@ export default function ReservarMesa() {
   agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
   const minDate = agora.toISOString().slice(0, 16);
 
+  const umAnoDepois = new Date(agora);
+  umAnoDepois.setFullYear(umAnoDepois.getFullYear() + 1);
+  const maxDate = umAnoDepois.toISOString().slice(0, 16);
+
   useEffect(() => {
     carregarMesas();
-
     const handleFocus = () => carregarMesas();
     document.addEventListener("visibilitychange", handleFocus);
     return () => document.removeEventListener("visibilitychange", handleFocus);
@@ -102,9 +105,7 @@ export default function ReservarMesa() {
         <div className={styles.container}>
           <div className={styles.pageHeader}>
             <h1 className={styles.pageTitle}>Reservar Mesa</h1>
-            <p className={styles.pageSubtitle}>
-              Escolha a mesa, a data e o horário desejados
-            </p>
+            <p className={styles.pageSubtitle}>Escolha a mesa, a data e o horário desejados</p>
           </div>
 
           {carregandoMesas ? (
@@ -124,6 +125,7 @@ export default function ReservarMesa() {
           ) : (
             <div className={styles.formCard}>
               <form className={styles.form} onSubmit={reservar} noValidate>
+
                 {erro && (
                   <div className={styles.alertErro} role="alert">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }}>
@@ -132,6 +134,7 @@ export default function ReservarMesa() {
                     {erro}
                   </div>
                 )}
+
                 {sucesso && (
                   <div className={styles.alertSucesso} role="status">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }}>
@@ -142,76 +145,75 @@ export default function ReservarMesa() {
                 )}
 
                 <div className={styles.field}>
-                  <label className={styles.label} htmlFor="mesa">Mesa disponível *</label>
-                  <div className={styles.selectWrap}>
-                    <select
-                      id="mesa"
-                      className={styles.select}
-                      value={mesaId}
-                      onChange={(e) => { setMesaId(e.target.value); setNPessoas(""); }}
-                      required
-                      disabled={enviando}
-                    >
-                      <option value="" disabled>Selecione uma mesa…</option>
-                      {mesas.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          Mesa {m.codigo} — {m.n_lugares} {m.n_lugares === 1 ? "lugar" : "lugares"}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <label className={styles.label} htmlFor="mesa">Mesa disponível</label>
+                  <select
+                    id="mesa"
+                    className={styles.select}
+                    value={mesaId}
+                    onChange={(e) => { setMesaId(e.target.value); setNPessoas(""); }}
+                    required
+                    disabled={enviando}
+                  >
+                    <option value="">Selecione uma mesa…</option>
+                    {mesas.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        Mesa {m.codigo} — {m.n_lugares} {m.n_lugares === 1 ? "lugar" : "lugares"}
+                      </option>
+                    ))}
+                  </select>
                   {mesaSelecionada && (
                     <div className={styles.mesaInfo}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                         <circle cx="12" cy="12" r="10" /><polyline points="9 12 11 14 15 10" />
                       </svg>
-                      Mesa {mesaSelecionada.codigo} selecionada · capacidade para {mesaSelecionada.n_lugares} {mesaSelecionada.n_lugares === 1 ? "pessoa" : "pessoas"}
+                      Mesa {mesaSelecionada.codigo} · {mesaSelecionada.n_lugares} {mesaSelecionada.n_lugares === 1 ? "lugar" : "lugares"}
                     </div>
                   )}
                 </div>
 
-                <div className={styles.fieldRow}>
-                  <div className={styles.field}>
-                    <label className={styles.label} htmlFor="data">Data e horário *</label>
-                    <input
-                      id="data"
-                      type="datetime-local"
-                      className={styles.input}
-                      value={data}
-                      onChange={(e) => setData(e.target.value)}
-                      min={minDate}
-                      required
-                      disabled={enviando}
-                    />
-                  </div>
-
-                  <div className={styles.field}>
-                    <label className={styles.label} htmlFor="nPessoas">
-                      Pessoas *
-                      {mesaSelecionada && (
-                        <span style={{ fontWeight: 400, color: "var(--color-text-muted)" }}>
-                          (máx. {mesaSelecionada.n_lugares})
-                        </span>
-                      )}
-                    </label>
-                    <input
-                      id="nPessoas"
-                      type="number"
-                      className={styles.input}
-                      value={nPessoas}
-                      onChange={(e) => setNPessoas(e.target.value)}
-                      min={1}
-                      max={mesaSelecionada ? mesaSelecionada.n_lugares : undefined}
-                      required
-                      disabled={enviando || !mesaId}
-                      placeholder="Ex: 2"
-                    />
-                  </div>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="data">Data e horário</label>
+                  <input
+                    id="data"
+                    type="datetime-local"
+                    className={styles.input}
+                    value={data}
+                    onChange={(e) => setData(e.target.value)}
+                    min={minDate}
+                    max={maxDate}
+                    required
+                    disabled={enviando}
+                  />
                 </div>
+
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="nPessoas">
+                    Número de pessoas
+                    {mesaSelecionada && (
+                      <span style={{ fontWeight: 400, color: "var(--color-text-muted)", marginLeft: "var(--space-2)" }}>
+                        máx. {mesaSelecionada.n_lugares}
+                      </span>
+                    )}
+                  </label>
+                  <input
+                    id="nPessoas"
+                    type="number"
+                    className={styles.input}
+                    value={nPessoas}
+                    onChange={(e) => setNPessoas(e.target.value)}
+                    min={1}
+                    max={mesaSelecionada ? mesaSelecionada.n_lugares : undefined}
+                    required
+                    disabled={enviando || !mesaId}
+                    placeholder="Ex: 2"
+                  />
+                </div>
+
+                <hr className={styles.divider} />
 
                 <button type="submit" className={styles.submitBtn} disabled={enviando}>
                   {enviando ? (
-                    <>Confirmando…</>
+                    "Confirmando…"
                   ) : (
                     <>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -221,6 +223,7 @@ export default function ReservarMesa() {
                     </>
                   )}
                 </button>
+
               </form>
             </div>
           )}
