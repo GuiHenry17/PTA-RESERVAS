@@ -33,23 +33,16 @@ export default function Header() {
       <div className={styles.inner}>
         <Link to="/" className={styles.logo} aria-label="Ir para a página inicial" onClick={fecharMenu}>
           <span className={styles.logoSub}>Restaurante</span>
-          <span className={styles.logoName}>do Joilço</span>
+          <span className={styles.logoName}>Volta &amp; Meia</span>
         </Link>
 
-        {/* Nav desktop */}
         <nav className={styles.nav} aria-label="Navegação principal">
           <Link to="/" className={styles.navLink}>Início</Link>
           <Link to="/cardapio" className={styles.navLink}>Cardápio</Link>
-          {!isLogado && (
-            <>
-              <Link to="/login" className={styles.navLink}>Entrar</Link>
-              <Link to="/cadastro" className={styles.navLink}>Cadastro</Link>
-            </>
-          )}
         </nav>
 
         <div className={styles.actions}>
-          {isLogado && (
+          {isLogado ? (
             <>
               {isAdmin && (
                 <Link to="/admin" className={styles.adminBtn}>
@@ -82,15 +75,13 @@ export default function Header() {
                 <span>Sair</span>
               </button>
             </>
-          )}
-
-          {!isLogado && (
+          ) : (
             <>
-              <Link to="/login" className={styles.loginBtnMobile}>Entrar</Link>
+              <Link to="/login" className={styles.loginBtn}>Entrar</Link>
+              <Link to="/cadastro" className={styles.cadastroBtn}>Criar conta</Link>
             </>
           )}
 
-          {/* Botão hamburger */}
           <button
             className={styles.hamburger}
             onClick={() => setMenuAberto((v) => !v)}
@@ -110,7 +101,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Drawer mobile */}
       {menuAberto && (
         <div className={styles.mobileMenu} aria-label="Menu mobile">
           <nav className={styles.mobileNav}>

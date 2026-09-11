@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.brand}>
-          <span className={styles.brandName}>Restaurante do Joilço</span>
+          <span className={styles.brandName}>Volta &amp; Meia</span>
           <span className={styles.brandTagline}>Gastronomia autêntica desde sempre</span>
         </div>
 
@@ -18,7 +18,7 @@ export default function Footer() {
         </nav>
 
         <div className={styles.meta}>
-          <span className={styles.copy}>&copy; {ano} Restaurante do Joilço</span>
+          <span className={styles.copy}>&copy; {ano} Volta &amp; Meia</span>
           <span className={styles.credits}>
             Desenvolvido por <strong>Guilherme Henrique</strong> e <strong>Enzo Mazer</strong>
           </span>

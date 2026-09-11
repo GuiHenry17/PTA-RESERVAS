@@ -9,7 +9,6 @@ export default function Home() {
       <Header />
 
       <main>
-        {/* Hero */}
         <section className={styles.hero}>
           <div className={styles.heroBg} aria-hidden="true" />
           <div className={styles.heroOverlay} aria-hidden="true" />
@@ -17,7 +16,7 @@ export default function Home() {
           <div className={styles.heroContent}>
             <span className={styles.heroEyebrow}>Bem-vindo ao</span>
             <h1 className={styles.heroTitle}>
-              Restaurante<br />do Joilço
+              Volta &amp; Meia
             </h1>
             <p className={styles.heroSub}>
               Gastronomia autêntica com o melhor atendimento da cidade.<br />
@@ -40,7 +39,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Features */}
         <section className={styles.features} aria-label="Diferenciais">
           <div className={styles.featuresInner}>
             <div className={styles.featureItem}>
@@ -80,7 +78,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA band */}
         <section className={styles.ctaBand}>
           <div className={styles.ctaBandInner}>
             <div>
