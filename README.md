@@ -137,7 +137,7 @@ cp .env.example .env
 Edite `frontend/.env`:
 
 ```env
-API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:3000
 ```
 
 Se a variável não estiver definida, o frontend usa `http://localhost:3000` por padrão.
@@ -327,7 +327,7 @@ UPDATE "Usuario" SET tipo = 'admin' WHERE email = 'seu@email.com';
 ### Configuração na Vercel
 
 - **Root Directory:** `frontend`
-- **Variável de ambiente:** `API_URL` com a URL do Render
+- **Variável de ambiente:** `VITE_API_URL` com a URL do Render
 
 ---
 
