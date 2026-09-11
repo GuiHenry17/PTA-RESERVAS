@@ -5,156 +5,143 @@ const client = require("../prismaClient");
 // Regex simples de validação de e-mail
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-class usuarioController {
+async function cadastrar(req, res) {
+  const { nome, sobrenome, email, password, tipo } = req.body;
 
-  static async cadastrar(req, res) {
-    const { nome, sobrenome, estado, cidade, bairro, rua, numero, email, password, tipo } = req.body;
-
-    if (!nome || !sobrenome || !estado || !cidade || !bairro || !rua || !numero || !email || !password) {
-      return res.status(400).json({
-        mensagem: "Todos os campos são obrigatórios!",
-        erro: true,
-      });
-    }
-
-    if (!EMAIL_REGEX.test(email)) {
-      return res.status(400).json({
-        mensagem: "Endereço de e-mail inválido.",
-        erro: true,
-      });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({
-        mensagem: "A senha deve ter pelo menos 6 caracteres.",
-        erro: true,
-      });
-    }
-
-    const numeroInt = parseInt(numero);
-    if (isNaN(numeroInt) || numeroInt < 1) {
-      return res.status(400).json({
-        mensagem: "Número do endereço inválido.",
-        erro: true,
-      });
-    }
-
-    const tiposValidos = ["cliente", "admin"];
-    if (tipo && !tiposValidos.includes(tipo)) {
-      return res.status(400).json({
-        mensagem: "Tipo de usuário inválido! Somente 'cliente' ou 'admin'.",
-        erro: true,
-      });
-    }
-
-    const salt = bcrypt.genSaltSync(10);
-    const hashpassword = bcrypt.hashSync(password, salt);
-
-    try {
-      const usuario = await client.usuario.create({
-        data: {
-          nome: nome.trim(),
-          sobrenome: sobrenome.trim(),
-          estado: estado.trim(),
-          cidade: cidade.trim(),
-          bairro: bairro.trim(),
-          rua: rua.trim(),
-          numero: numeroInt,
-          email: email.toLowerCase().trim(),
-          password: hashpassword,
-          tipo: tipo || "cliente",
-        },
-      });
-
-      const token = jwt.sign(
-        { id: usuario.id, tipo: usuario.tipo },
-        process.env.SENHA_SERVIDOR,
-        { expiresIn: "2h" }
-      );
-
-      return res.status(201).json({
-        mensagem: "Usuário cadastrado com sucesso!",
-        erro: false,
-        token,
-      });
-    } catch (err) {
-      if (err.code === "P2002") {
-        return res.status(409).json({
-          mensagem: "Este e-mail já está cadastrado.",
-          erro: true,
-        });
-      }
-      console.error("Erro ao cadastrar usuário:", err);
-      return res.status(500).json({
-        mensagem: "Falha ao criar usuário.",
-        erro: true,
-      });
-    }
+  if (!nome || !sobrenome || !email || !password) {
+    return res.status(400).json({
+      mensagem: "Todos os campos são obrigatórios!",
+      erro: true,
+    });
   }
 
-  static async login(req, res) {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        msg: "E-mail e senha são obrigatórios.",
-      });
-    }
-
-    try {
-      const usuario = await client.usuario.findUnique({
-        where: { email: email.toLowerCase().trim() },
-      });
-
-      if (!usuario) {
-        return res.status(401).json({
-          msg: "Usuário não encontrado!",
-        });
-      }
-
-      const passwordCorreta = bcrypt.compareSync(password, usuario.password);
-
-      if (!passwordCorreta) {
-        return res.status(401).json({
-          msg: "Senha incorreta!",
-        });
-      }
-
-      const token = jwt.sign(
-        { id: usuario.id, tipo: usuario.tipo },
-        process.env.SENHA_SERVIDOR,
-        { expiresIn: "2h" }
-      );
-
-      return res.json({
-        msg: "Autenticado com sucesso!",
-        token,
-      });
-    } catch (err) {
-      console.error("Erro ao fazer login:", err);
-      return res.status(500).json({
-        msg: "Falha ao realizar login.",
-      });
-    }
+  if (!EMAIL_REGEX.test(email)) {
+    return res.status(400).json({
+      mensagem: "Endereço de e-mail inválido.",
+      erro: true,
+    });
   }
 
-  static async getUsuarioLogado(req, res) {
-    try {
-      const usuario = await client.usuario.findUnique({
-        where: { id: req.usuarioId },
-        select: { id: true, nome: true, sobrenome: true, email: true, tipo: true },
+  if (password.length < 6) {
+    return res.status(400).json({
+      mensagem: "A senha deve ter pelo menos 6 caracteres.",
+      erro: true,
+    });
+  }
+
+  const tiposValidos = ["cliente", "admin"];
+  if (tipo && !tiposValidos.includes(tipo)) {
+    return res.status(400).json({
+      mensagem: "Tipo de usuário inválido! Somente 'cliente' ou 'admin'.",
+      erro: true,
+    });
+  }
+
+  const hashpassword = bcrypt.hashSync(password, 10);
+
+  try {
+    const usuario = await client.usuario.create({
+      data: {
+        nome: nome.trim(),
+        sobrenome: sobrenome.trim(),
+        email: email.toLowerCase().trim(),
+        password: hashpassword,
+        tipo: tipo || "cliente",
+      },
+    });
+
+    const token = jwt.sign(
+      { id: usuario.id, tipo: usuario.tipo, nome: usuario.nome },
+      process.env.SENHA_SERVIDOR,
+      { expiresIn: "2h" }
+    );
+
+    return res.status(201).json({
+      mensagem: "Usuário cadastrado com sucesso!",
+      erro: false,
+      token,
+    });
+  } catch (err) {
+    if (err.code === "P2002") {
+      return res.status(409).json({
+        mensagem: "Este e-mail já está cadastrado.",
+        erro: true,
       });
-
-      if (!usuario) {
-        return res.status(404).json({ erro: true, mensagem: "Usuário não encontrado." });
-      }
-
-      return res.json({ erro: false, usuario });
-    } catch (err) {
-      console.error("Erro ao buscar usuário logado:", err);
-      return res.status(500).json({ erro: true, mensagem: "Falha ao buscar dados do usuário." });
     }
+    console.error("Erro ao cadastrar usuário:", err);
+    return res.status(500).json({
+      mensagem: "Falha ao criar usuário.",
+      erro: true,
+    });
   }
 }
 
-module.exports = usuarioController;
+async function login(req, res) {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      mensagem: "E-mail e senha são obrigatórios.",
+      erro: true,
+    });
+  }
+
+  try {
+    const usuario = await client.usuario.findUnique({
+      where: { email: email.toLowerCase().trim() },
+    });
+
+    if (!usuario) {
+      return res.status(401).json({
+        mensagem: "Usuário não encontrado!",
+        erro: true,
+      });
+    }
+
+    const passwordCorreta = bcrypt.compareSync(password, usuario.password);
+    if (!passwordCorreta) {
+      return res.status(401).json({
+        mensagem: "Senha incorreta!",
+        erro: true,
+      });
+    }
+
+    const token = jwt.sign(
+      { id: usuario.id, tipo: usuario.tipo, nome: usuario.nome },
+      process.env.SENHA_SERVIDOR,
+      { expiresIn: "2h" }
+    );
+
+    return res.json({
+      mensagem: "Autenticado com sucesso!",
+      erro: false,
+      token,
+    });
+  } catch (err) {
+    console.error("Erro ao fazer login:", err);
+    return res.status(500).json({
+      mensagem: "Falha ao realizar login.",
+      erro: true,
+    });
+  }
+}
+
+async function getUsuarioLogado(req, res) {
+  try {
+    const usuario = await client.usuario.findUnique({
+      where: { id: req.usuarioId },
+      select: { id: true, nome: true, sobrenome: true, email: true, tipo: true },
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ erro: true, mensagem: "Usuário não encontrado." });
+    }
+
+    return res.json({ erro: false, usuario });
+  } catch (err) {
+    console.error("Erro ao buscar usuário logado:", err);
+    return res.status(500).json({ erro: true, mensagem: "Falha ao buscar dados do usuário." });
+  }
+}
+
+module.exports = { cadastrar, login, getUsuarioLogado };

@@ -103,7 +103,7 @@ export default function ListarReservas() {
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Minhas Reservas</h1>
           <p className={styles.pageSubtitle}>
-            Gerencie suas reservas no Restaurante do Joilço
+            Gerencie suas reservas no Volta &amp; Meia
           </p>
         </div>
 

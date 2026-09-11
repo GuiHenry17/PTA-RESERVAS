@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styles from "../styles/Header.module.css";
 
@@ -15,11 +15,24 @@ function getPayload() {
   }
 }
 
+function getIniciais(nome) {
+  if (!nome) return "?";
+  const partes = nome.trim().split(" ");
+  if (partes.length === 1) return partes[0][0].toUpperCase();
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+}
+
 export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false);
+  const [dropdownAberto, setDropdownAberto] = useState(false);
+  const dropdownRef = useRef(null);
+
   const payload = getPayload();
   const isLogado = !!payload;
   const isAdmin = payload?.tipo === "admin";
+  const nome = payload?.nome ?? "";
+  const iniciais = getIniciais(nome);
+  const primeiroNome = nome.trim().split(" ")[0];
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -27,6 +40,16 @@ export default function Header() {
   };
 
   const fecharMenu = () => setMenuAberto(false);
+
+  useEffect(() => {
+    function handleClickFora(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownAberto(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickFora);
+    return () => document.removeEventListener("mousedown", handleClickFora);
+  }, []);
 
   return (
     <header className={styles.header}>
@@ -43,38 +66,86 @@ export default function Header() {
 
         <div className={styles.actions}>
           {isLogado ? (
-            <>
-              {isAdmin && (
-                <Link to="/admin" className={styles.adminBtn}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <rect x="3" y="3" width="7" height="7" rx="1" />
-                    <rect x="14" y="3" width="7" height="7" rx="1" />
-                    <rect x="3" y="14" width="7" height="7" rx="1" />
-                    <rect x="14" y="14" width="7" height="7" rx="1" />
-                  </svg>
-                  <span>Painel Admin</span>
-                </Link>
-              )}
-
-              <Link to="/reservas" className={styles.reservasBtn}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
+            <div className={styles.userMenu} ref={dropdownRef}>
+              <button
+                className={styles.avatarBtn}
+                onClick={() => setDropdownAberto((v) => !v)}
+                aria-label="Menu do usuário"
+                aria-expanded={dropdownAberto}
+              >
+                <div className={styles.avatar}>{iniciais}</div>
+                <span className={styles.saudacao}>Olá, {primeiroNome}</span>
+                <svg
+                  className={`${styles.chevron} ${dropdownAberto ? styles.chevronAberto : ""}`}
+                  width="14" height="14" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" strokeWidth="2.5"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
                 </svg>
-                <span>Minhas Reservas</span>
-              </Link>
-
-              <button className={styles.logoutBtn} onClick={handleLogout} aria-label="Sair da conta">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                <span>Sair</span>
               </button>
-            </>
+
+              {dropdownAberto && (
+                <div className={styles.dropdown} role="menu">
+                  <div className={styles.dropdownHeader}>
+                    <div className={styles.avatarLg}>{iniciais}</div>
+                    <div>
+                      <div className={styles.dropdownNome}>{nome}</div>
+                      <div className={styles.dropdownTipo}>{isAdmin ? "Administrador" : "Cliente"}</div>
+                    </div>
+                  </div>
+
+                  <div className={styles.dropdownDivider} />
+
+                  <Link
+                    to="/reservas"
+                    className={styles.dropdownItem}
+                    onClick={() => setDropdownAberto(false)}
+                    role="menuitem"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    Minhas Reservas
+                  </Link>
+
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className={styles.dropdownItem}
+                      onClick={() => setDropdownAberto(false)}
+                      role="menuitem"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                      </svg>
+                      Painel Admin
+                    </Link>
+                  )}
+
+                  <div className={styles.dropdownDivider} />
+
+                  <button
+                    className={`${styles.dropdownItem} ${styles.dropdownItemLogout}`}
+                    onClick={() => { setDropdownAberto(false); handleLogout(); }}
+                    role="menuitem"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Sair
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <Link to="/login" className={styles.loginBtn}>Entrar</Link>
@@ -113,16 +184,23 @@ export default function Header() {
               </>
             ) : (
               <>
+                <div className={styles.mobileUserInfo}>
+                  <div className={styles.avatarSm}>{iniciais}</div>
+                  <div>
+                    <div className={styles.mobileUserNome}>{nome}</div>
+                    <div className={styles.mobileUserTipo}>{isAdmin ? "Administrador" : "Cliente"}</div>
+                  </div>
+                </div>
+                <Link to="/reservas" className={styles.mobileNavLink} onClick={fecharMenu}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                  Minhas Reservas
+                </Link>
                 {isAdmin && (
                   <Link to="/admin" className={styles.mobileNavLink} onClick={fecharMenu}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
                     Painel Admin
                   </Link>
                 )}
-                <Link to="/reservas" className={styles.mobileNavLink} onClick={fecharMenu}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                  Minhas Reservas
-                </Link>
                 <button className={`${styles.mobileNavLink} ${styles.mobileNavLinkLogout}`} onClick={() => { handleLogout(); fecharMenu(); }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
                   Sair
