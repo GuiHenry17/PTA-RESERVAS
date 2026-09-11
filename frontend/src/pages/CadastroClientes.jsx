@@ -42,7 +42,6 @@ export default function CadastroClientes() {
         return;
       }
 
-      // Login automático após cadastro bem-sucedido
       if (data.token) {
         localStorage.setItem("token", data.token);
         navigate("/");

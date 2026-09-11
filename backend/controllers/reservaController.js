@@ -55,7 +55,6 @@ async function reservar(req, res) {
         throw err;
       }
 
-      // Verificação extra contra race condition: reserva ativa na mesma data/hora
       const reservaExistente = await tx.reserva.findFirst({
         where: { mesa_id: mesaIdInt, status: true, data: dataReserva },
       });
@@ -137,7 +136,6 @@ async function cancelar(req, res) {
 
       await tx.reserva.update({ where: { id: reservaIdInt }, data: { status: false } });
 
-      // updateMany com condição evita liberar mesa que já foi liberada por outra operação
       await tx.mesa.updateMany({
         where: { id: reserva.mesa_id, status: "reservada" },
         data: { status: "disponível" },

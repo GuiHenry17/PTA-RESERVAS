@@ -56,7 +56,6 @@ export default function AdminDashboard() {
           reservasAtivas: reservas.filter((r) => r.status).length,
         });
       } catch {
-        // silencia — dashboard não crítico
       } finally {
         setCarregando(false);
       }

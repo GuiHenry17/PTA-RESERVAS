@@ -146,7 +146,6 @@ export default function AdminMesas() {
           <p className={styles.pageSubtitle}>Cadastre, edite, libere e remova mesas do restaurante</p>
         </div>
 
-        {/* Formulário */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
@@ -228,7 +227,6 @@ export default function AdminMesas() {
           </form>
         </div>
 
-        {/* Tabela */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
@@ -269,7 +267,6 @@ export default function AdminMesas() {
                         </td>
                         <td>
                           <div className={styles.cellActions}>
-                            {/* Botão dedicado LIBERAR — aparece só para mesas reservadas */}
                             {mesa.status === "reservada" && (
                               <button
                                 className={styles.btnLiberar}

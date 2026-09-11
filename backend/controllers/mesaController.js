@@ -105,7 +105,6 @@ async function atualizar(req, res) {
       let reservasCanceladas = 0;
 
       if (liberandoMesa) {
-        // updateMany em vez de delete — preserva histórico (soft-cancel)
         const updated = await tx.reserva.updateMany({
           where: { mesa_id: mesaId, status: true },
           data: { status: false },
@@ -171,7 +170,6 @@ async function remover(req, res) {
       });
     }
 
-    // Remove reservas canceladas (histórico) e a mesa em uma transação atômica
     await client.$transaction(async (tx) => {
       await tx.reserva.deleteMany({ where: { mesa_id: mesaId } });
       await tx.mesa.delete({ where: { id: mesaId } });
