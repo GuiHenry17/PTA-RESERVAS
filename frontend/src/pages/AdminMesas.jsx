@@ -53,8 +53,11 @@ export default function AdminMesas() {
 
   async function salvar(e) {
     e.preventDefault();
-    if (!form.codigo.trim() || !form.n_lugares) {
-      return exibirFeedback("Preencha todos os campos obrigatórios.", "erro");
+    if (editandoId && !form.codigo.trim()) {
+      return exibirFeedback("Preencha o código da mesa.", "erro");
+    }
+    if (!form.n_lugares) {
+      return exibirFeedback("Preencha o número de lugares.", "erro");
     }
     if (Number(form.n_lugares) < 1) {
       return exibirFeedback("Número de lugares deve ser maior que zero.", "erro");
@@ -66,14 +69,14 @@ export default function AdminMesas() {
       const url = editandoId ? `${API_URL}/mesas/${editandoId}` : `${API_URL}/mesas/novo`;
       const method = editandoId ? "PUT" : "POST";
 
+      const body = editandoId
+        ? { codigo: form.codigo.trim(), n_lugares: Number(form.n_lugares), status: form.status }
+        : { n_lugares: Number(form.n_lugares), status: form.status };
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          codigo: form.codigo.trim(),
-          n_lugares: Number(form.n_lugares),
-          status: form.status,
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -172,18 +175,20 @@ export default function AdminMesas() {
 
           <form className={styles.form} onSubmit={salvar} noValidate>
             <div className={styles.formRow}>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="codigo">Código *</label>
-                <input
-                  id="codigo"
-                  className={styles.input}
-                  placeholder="Ex: 01, A1…"
-                  value={form.codigo}
-                  onChange={(e) => setForm({ ...form, codigo: e.target.value })}
-                  maxLength={10}
-                  disabled={salvando}
-                />
-              </div>
+              {editandoId && (
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="codigo">Código *</label>
+                  <input
+                    id="codigo"
+                    className={styles.input}
+                    placeholder="Ex: M01, A1…"
+                    value={form.codigo}
+                    onChange={(e) => setForm({ ...form, codigo: e.target.value })}
+                    maxLength={10}
+                    disabled={salvando}
+                  />
+                </div>
+              )}
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="n_lugares">Lugares *</label>
                 <input
