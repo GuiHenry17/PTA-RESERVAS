@@ -20,23 +20,23 @@ async function cadastrar(req, res) {
   }
 
   try {
-    let codigoFinal = codigo ? codigo.trim() : null;
+    const mesa = await client.$transaction(async (tx) => {
+      const criada = await tx.mesa.create({
+        data: {
+          codigo: `__tmp_${Date.now()}__`,
+          n_lugares: lugares,
+          status: statusFinal,
+        },
+      });
 
-    if (!codigoFinal) {
-      const mesas = await client.mesa.findMany({ select: { codigo: true } });
-      const numeros = mesas
-        .map((m) => {
-          const match = m.codigo.match(/^M(\d+)$/i);
-          return match ? parseInt(match[1]) : 0;
-        })
-        .filter((n) => n > 0);
-      const proximo = numeros.length > 0 ? Math.max(...numeros) + 1 : 1;
-      codigoFinal = `M${String(proximo).padStart(2, "0")}`;
-    }
+      const codigoFinal = codigo ? codigo.trim() : `M${String(criada.id).padStart(2, "0")}`;
 
-    const mesa = await client.mesa.create({
-      data: { codigo: codigoFinal, n_lugares: lugares, status: statusFinal },
+      return tx.mesa.update({
+        where: { id: criada.id },
+        data: { codigo: codigoFinal },
+      });
     });
+
     return res.status(201).json({ mensagem: "Mesa cadastrada com sucesso!", erro: false, mesa });
   } catch (err) {
     if (err.code === "P2002") {
