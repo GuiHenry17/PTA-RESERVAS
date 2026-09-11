@@ -28,20 +28,15 @@ export default function AdminReservas() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
-  const carregarReservas = useCallback(async (data) => {
+  const carregarReservas = useCallback(async () => {
     setCarregando(true);
     setErro("");
     try {
       const token = localStorage.getItem("token");
-
-      let url = `${API_URL}/reservas/todas`;
-      if (data) {
-        url = `${API_URL}/reservas/list?data=${encodeURIComponent(new Date(data).toISOString())}`;
-      }
-
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_URL}/reservas/todas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const json = await res.json();
-
       if (json.erro) setErro(json.mensagem || "Erro ao carregar reservas.");
       else setReservas(json.reservas || []);
     } catch {
@@ -52,8 +47,8 @@ export default function AdminReservas() {
   }, []);
 
   useEffect(() => {
-    carregarReservas(filtroData);
-  }, [filtroData, carregarReservas]);
+    carregarReservas();
+  }, [carregarReservas]);
 
   const reservasFiltradas = reservas.filter((r) => {
     const matchStatus =
@@ -62,6 +57,14 @@ export default function AdminReservas() {
       (filtroStatus === "cancelada" && r.status === false);
 
     if (!matchStatus) return false;
+
+    if (filtroData) {
+      const dataReserva = new Date(r.data);
+      const ano = dataReserva.getFullYear();
+      const mes = String(dataReserva.getMonth() + 1).padStart(2, "0");
+      const dia = String(dataReserva.getDate()).padStart(2, "0");
+      if (`${ano}-${mes}-${dia}` !== filtroData) return false;
+    }
 
     if (!busca.trim()) return true;
     const texto = busca.toLowerCase();
